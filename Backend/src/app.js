@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 
 const administradoresRoutes = require("./routes/administradores.routes");
+const authRoutes = require("./routes/auth.routes");
 
 const app = express();
 
@@ -13,5 +14,6 @@ app.get("/", (req, res) => {
 });
 
 app.use("/administradores", administradoresRoutes);
+app.use("/auth", authRoutes);
 
 module.exports = app;

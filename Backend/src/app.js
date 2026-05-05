@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const administradoresRoutes = require("./routes/administradores.routes");
 const authRoutes = require("./routes/auth.routes");
+const entrenadoresRoutes = require("./routes/entrenadores.routes");
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.get("/", (req, res) => {
 
 app.use("/administradores", administradoresRoutes);
 app.use("/auth", authRoutes);
+app.use("/entrenadores", entrenadoresRoutes);
 
 module.exports = app;

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verificarToken = require("../middleware/auth.middleware");
 
 const {
   getJugadores,
@@ -14,8 +15,8 @@ router.get("/", getJugadores);
 router.get("/:id", getJugadorById);
 
 // Rutas que requieren Auth
-router.post("/", postJugador);
-router.put("/:id", putJugador);
-router.delete("/:id", deleteJugador);
+router.post("/", verificarToken, postJugador);
+router.put("/:id", verificarToken, putJugador);
+router.delete("/:id", verificarToken, deleteJugador);
 
 module.exports = router;

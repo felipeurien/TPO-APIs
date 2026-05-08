@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verificarToken = require("../middleware/auth.middleware");
 
 const {
   getLigas,
@@ -9,6 +10,6 @@ const {
 
 router.get("/", getLigas);
 router.get("/:id", getLigaById);
-router.post("/", postLiga);
+router.post("/", verificarToken, postLiga);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verificarToken = require("../middleware/auth.middleware");
 
 const {
   getPartidos,
@@ -15,9 +16,9 @@ router.get("/", getPartidos);
 router.get("/:id", getPartidoById);
 
 // Rutas que requieren Auth
-router.post("/", postPartido);
-router.put("/:id", putPartido);
-router.patch("/:id/resultado", patchResultadoPartido);
-router.delete("/:id", deletePartido);
+router.post("/", verificarToken, postPartido);
+router.put("/:id", verificarToken, putPartido);
+router.patch("/:id/resultado", verificarToken, patchResultadoPartido);
+router.delete("/:id", verificarToken, deletePartido);
 
 module.exports = router;

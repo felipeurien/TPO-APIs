@@ -1,5 +1,6 @@
 const pool = require("../config/db");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
   try {
@@ -30,7 +31,7 @@ const login = async (req, res) => {
     if (rows.length === 0) {
       return res.status(401).json({
         ok: false,
-        message: "Credenciales inválidas",
+        message: "Credenciales invalidas",
       });
     }
 
@@ -39,7 +40,7 @@ const login = async (req, res) => {
     if (!admin.activo) {
       return res.status(403).json({
         ok: false,
-        message: "El administrador está inactivo",
+        message: "El administrador esta inactivo",
       });
     }
 
@@ -48,13 +49,25 @@ const login = async (req, res) => {
     if (!passwordValida) {
       return res.status(401).json({
         ok: false,
-        message: "Credenciales inválidas",
+        message: "Credenciales invalidas",
       });
     }
+
+    const token = jwt.sign(
+      {
+        id_administrador: admin.id_administrador,
+        username: admin.username,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRES_IN || "2h",
+      },
+    );
 
     return res.status(200).json({
       ok: true,
       message: "Login correcto",
+      token,
       data: {
         id_administrador: admin.id_administrador,
         username: admin.username,

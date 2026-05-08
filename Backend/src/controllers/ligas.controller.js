@@ -115,8 +115,129 @@ const postLiga = async (req, res) => {
   }
 };
 
+const putLiga = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, temporada_actual, descripcion, activa } = req.body;
+
+    if (!nombre || !temporada_actual) {
+      return res.status(400).json({
+        ok: false,
+        message: "Nombre y temporada_actual son obligatorios",
+      });
+    }
+
+    const [result] = await pool.query(
+      `
+      UPDATE ligas
+      SET
+        nombre = ?,
+        temporada_actual = ?,
+        descripcion = ?,
+        activa = ?
+      WHERE id_liga = ?
+      `,
+      [nombre, temporada_actual, descripcion ?? null, activa ?? true, id],
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: "Liga no encontrada",
+      });
+    }
+
+    const [ligaActualizada] = await pool.query(
+      `
+      SELECT
+        id_liga,
+        nombre,
+        temporada_actual,
+        descripcion,
+        activa
+      FROM ligas
+      WHERE id_liga = ?
+      `,
+      [id],
+    );
+
+    res.status(200).json({
+      ok: true,
+      message: "Liga actualizada correctamente",
+      data: ligaActualizada[0],
+    });
+  } catch (error) {
+    console.error("Error actualizando liga:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Error actualizando liga",
+      error: error.message,
+    });
+  }
+};
+
+const deleteLiga = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [equiposAsociados] = await pool.query(
+      `
+      SELECT id_equipo
+      FROM equipos
+      WHERE id_liga = ?
+      LIMIT 1
+      `,
+      [id],
+    );
+
+    if (equiposAsociados.length > 0) {
+      return res.status(409).json({
+        ok: false,
+        message: "No se puede eliminar la liga porque tiene equipos asociados",
+      });
+    }
+
+    const [result] = await pool.query(
+      `
+      DELETE FROM ligas
+      WHERE id_liga = ?
+      `,
+      [id],
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: "Liga no encontrada",
+      });
+    }
+
+    res.status(200).json({
+      ok: true,
+      message: "Liga eliminada correctamente",
+    });
+  } catch (error) {
+    console.error("Error eliminando liga:", error);
+
+    if (error.code === "ER_ROW_IS_REFERENCED_2") {
+      return res.status(409).json({
+        ok: false,
+        message: "No se puede eliminar la liga porque tiene equipos asociados",
+      });
+    }
+
+    res.status(500).json({
+      ok: false,
+      message: "Error eliminando liga",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   getLigas,
   getLigaById,
   postLiga,
+  putLiga,
+  deleteLiga,
 };

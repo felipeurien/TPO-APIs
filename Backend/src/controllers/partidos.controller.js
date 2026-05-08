@@ -1,5 +1,26 @@
 const pool = require("../config/db");
 
+const validarEquiposPartido = async (idEquipoLocal, idEquipoVisitante) => {
+  if (Number(idEquipoLocal) === Number(idEquipoVisitante)) {
+    return "El equipo local y el equipo visitante no pueden ser el mismo";
+  }
+
+  const [equipos] = await pool.query(
+    `
+    SELECT id_equipo
+    FROM equipos
+    WHERE id_equipo IN (?, ?)
+    `,
+    [idEquipoLocal, idEquipoVisitante],
+  );
+
+  if (equipos.length < 2) {
+    return "El equipo local y el equipo visitante deben existir";
+  }
+
+  return null;
+};
+
 const getPartidos = async (req, res) => {
   try {
     const [rows] = await pool.query(`
@@ -103,10 +124,12 @@ const postPartido = async (req, res) => {
       });
     }
 
-    if (Number(id_equipo_local) === Number(id_equipo_visitante)) {
+    const errorEquipos = await validarEquiposPartido(id_equipo_local, id_equipo_visitante);
+
+    if (errorEquipos) {
       return res.status(400).json({
         ok: false,
-        message: "El equipo local y el equipo visitante no pueden ser el mismo",
+        message: errorEquipos,
       });
     }
 
@@ -190,10 +213,12 @@ const putPartido = async (req, res) => {
       });
     }
 
-    if (Number(id_equipo_local) === Number(id_equipo_visitante)) {
+    const errorEquipos = await validarEquiposPartido(id_equipo_local, id_equipo_visitante);
+
+    if (errorEquipos) {
       return res.status(400).json({
         ok: false,
-        message: "El equipo local y el equipo visitante no pueden ser el mismo",
+        message: errorEquipos,
       });
     }
 

@@ -238,6 +238,29 @@ const deleteEquipo = async (req, res) => {
   try {
     const { id } = req.params;
 
+    const [equipo] = await pool.query(
+      `
+      SELECT activo
+      FROM equipos
+      WHERE id_equipo = ?
+      `,
+      [id],
+    );
+
+    if (equipo.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: "Equipo no encontrado",
+      });
+    }
+
+    if (equipo[0].activo) {
+      return res.status(409).json({
+        ok: false,
+        message: "No se puede eliminar un equipo que esta activo",
+      });
+    }
+
     const [result] = await pool.query(
       `
       DELETE FROM equipos
@@ -245,13 +268,6 @@ const deleteEquipo = async (req, res) => {
       `,
       [id],
     );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        ok: false,
-        message: "Equipo no encontrado",
-      });
-    }
 
     res.status(200).json({
       ok: true,

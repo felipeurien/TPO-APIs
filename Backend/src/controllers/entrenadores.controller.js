@@ -189,6 +189,14 @@ const deleteEntrenador = async (req, res) => {
     });
   } catch (error) {
     console.error("Error eliminando entrenador:", error);
+
+    if (error.code === "ER_ROW_IS_REFERENCED_2") {
+      return res.status(409).json({
+        ok: false,
+        message: "No se puede eliminar el entrenador porque esta asociado a un equipo",
+      });
+    }
+
     res.status(500).json({
       ok: false,
       message: "Error eliminando entrenador",

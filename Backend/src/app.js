@@ -7,7 +7,7 @@ const entrenadoresRoutes = require("./routes/entrenadores.routes");
 const equiposRoutes = require("./routes/equipos.routes");
 const jugadoresRoutes = require("./routes/jugadores.routes");
 const partidosRoutes = require("./routes/partidos.routes");
-const ligas = require("");
+const ligas = require("./routes/ligas.routes");
 
 const app = express();
 
@@ -24,5 +24,6 @@ app.use("/entrenadores", entrenadoresRoutes);
 app.use("/equipos", equiposRoutes);
 app.use("/jugadores", jugadoresRoutes);
 app.use("/partidos", partidosRoutes);
+app.use("/ligas", ligas);
 
 module.exports = app;

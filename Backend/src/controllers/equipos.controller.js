@@ -7,6 +7,8 @@ const getEquipos = async (req, res) => {
         e.id_equipo,
         e.nombre,
         e.categoria,
+        e.id_liga,
+        l.nombre AS liga_nombre,
         e.id_entrenador,
         en.nombre AS entrenador_nombre,
         en.apellido AS entrenador_apellido,
@@ -14,6 +16,7 @@ const getEquipos = async (req, res) => {
         e.escudo_url,
         e.activo
       FROM equipos e
+      LEFT JOIN ligas l ON e.id_liga = l.id_liga
       LEFT JOIN entrenadores en ON e.id_entrenador = en.id_entrenador
       ORDER BY e.nombre ASC
     `);
@@ -43,6 +46,8 @@ const getEquipoById = async (req, res) => {
         e.id_equipo,
         e.nombre,
         e.categoria,
+        e.id_liga,
+        l.nombre AS liga_nombre,
         e.id_entrenador,
         en.nombre AS entrenador_nombre,
         en.apellido AS entrenador_apellido,
@@ -50,6 +55,7 @@ const getEquipoById = async (req, res) => {
         e.escudo_url,
         e.activo
       FROM equipos e
+      LEFT JOIN ligas l ON e.id_liga = l.id_liga
       LEFT JOIN entrenadores en ON e.id_entrenador = en.id_entrenador
       WHERE e.id_equipo = ?
       `,
@@ -82,27 +88,29 @@ const postEquipo = async (req, res) => {
     const {
       nombre,
       categoria,
+      id_liga,
       id_entrenador,
       descripcion,
       escudo_url,
       activo,
     } = req.body;
 
-    if (!nombre || !categoria) {
+    if (!nombre || !categoria || !id_liga) {
       return res.status(400).json({
         ok: false,
-        message: "Nombre y categoria son obligatorios",
+        message: "Nombre, categoria e id_liga son obligatorios",
       });
     }
 
     const [result] = await pool.query(
       `
-      INSERT INTO equipos (nombre, categoria, id_entrenador, descripcion, escudo_url, activo)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO equipos (nombre, categoria, id_liga, id_entrenador, descripcion, escudo_url, activo)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
       `,
       [
         nombre,
         categoria,
+        id_liga,
         id_entrenador || null,
         descripcion || null,
         escudo_url || null,
@@ -116,6 +124,7 @@ const postEquipo = async (req, res) => {
         id_equipo,
         nombre,
         categoria,
+        id_liga,
         id_entrenador,
         descripcion,
         escudo_url,
@@ -147,16 +156,17 @@ const putEquipo = async (req, res) => {
     const {
       nombre,
       categoria,
+      id_liga,
       id_entrenador,
       descripcion,
       escudo_url,
       activo,
     } = req.body;
 
-    if (!nombre || !categoria) {
+    if (!nombre || !categoria || !id_liga) {
       return res.status(400).json({
         ok: false,
-        message: "Nombre y categoria son obligatorios",
+        message: "Nombre, categoria e id_liga son obligatorios",
       });
     }
 
@@ -166,6 +176,7 @@ const putEquipo = async (req, res) => {
       SET
         nombre = ?,
         categoria = ?,
+        id_liga = ?,
         id_entrenador = ?,
         descripcion = ?,
         escudo_url = ?,
@@ -175,6 +186,7 @@ const putEquipo = async (req, res) => {
       [
         nombre,
         categoria,
+        id_liga,
         id_entrenador || null,
         descripcion || null,
         escudo_url || null,
@@ -196,6 +208,7 @@ const putEquipo = async (req, res) => {
         id_equipo,
         nombre,
         categoria,
+        id_liga,
         id_entrenador,
         descripcion,
         escudo_url,

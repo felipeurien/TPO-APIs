@@ -5,12 +5,14 @@ const verificarToken = require("../middleware/auth.middleware");
 const {
   getLigas,
   getLigaById,
+  getClasificacionLiga,
   postLiga,
   putLiga,
   deleteLiga,
 } = require("../controllers/ligas.controller");
 
 router.get("/", getLigas);
+router.get("/:id/clasificacion", getClasificacionLiga);
 router.get("/:id", getLigaById);
 router.post("/", verificarToken, postLiga);
 router.put("/:id", verificarToken, putLiga);

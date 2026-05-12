@@ -67,6 +67,114 @@ const getLigaById = async (req, res) => {
   }
 };
 
+const getClasificacionLiga = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [liga] = await pool.query(
+      `
+      SELECT id_liga
+      FROM ligas
+      WHERE id_liga = ?
+      `,
+      [id],
+    );
+
+    if (liga.length === 0) {
+      return res.status(404).json({
+        ok: false,
+        message: "Liga no encontrada",
+      });
+    }
+
+    const [rows] = await pool.query(
+      `
+      SELECT
+        e.id_equipo,
+        e.nombre,
+        e.categoria,
+        COUNT(p.id_partido) AS partidos_jugados,
+        COALESCE(SUM(
+          CASE
+            WHEN p.id_equipo_local = e.id_equipo
+              AND p.resultado_local > p.resultado_visitante THEN 1
+            WHEN p.id_equipo_visitante = e.id_equipo
+              AND p.resultado_visitante > p.resultado_local THEN 1
+            ELSE 0
+          END
+        ), 0) AS ganados,
+        COALESCE(SUM(
+          CASE
+            WHEN p.id_equipo_local = e.id_equipo
+              AND p.resultado_local < p.resultado_visitante THEN 1
+            WHEN p.id_equipo_visitante = e.id_equipo
+              AND p.resultado_visitante < p.resultado_local THEN 1
+            ELSE 0
+          END
+        ), 0) AS perdidos,
+        COALESCE(SUM(
+          CASE
+            WHEN p.id_equipo_local = e.id_equipo THEN p.resultado_local
+            WHEN p.id_equipo_visitante = e.id_equipo THEN p.resultado_visitante
+            ELSE 0
+          END
+        ), 0) AS puntos_favor,
+        COALESCE(SUM(
+          CASE
+            WHEN p.id_equipo_local = e.id_equipo THEN p.resultado_visitante
+            WHEN p.id_equipo_visitante = e.id_equipo THEN p.resultado_local
+            ELSE 0
+          END
+        ), 0) AS puntos_contra
+      FROM equipos e
+      LEFT JOIN partidos p
+        ON p.estado = 'jugado'
+        AND (
+          p.id_equipo_local = e.id_equipo
+          OR p.id_equipo_visitante = e.id_equipo
+        )
+      WHERE e.id_liga = ?
+      GROUP BY e.id_equipo, e.nombre, e.categoria
+      ORDER BY ganados DESC, puntos_favor - puntos_contra DESC, puntos_favor DESC, e.nombre ASC
+      `,
+      [id],
+    );
+
+    const clasificacion = rows.map((equipo) => {
+      const ganados = Number(equipo.ganados);
+      const perdidos = Number(equipo.perdidos);
+      const puntosFavor = Number(equipo.puntos_favor);
+      const puntosContra = Number(equipo.puntos_contra);
+
+      return {
+        id_equipo: equipo.id_equipo,
+        nombre: equipo.nombre,
+        categoria: equipo.categoria,
+        partidos_jugados: Number(equipo.partidos_jugados),
+        ganados,
+        perdidos,
+        puntos_favor: puntosFavor,
+        puntos_contra: puntosContra,
+        diferencia: puntosFavor - puntosContra,
+        puntos: ganados * 2 + perdidos,
+      };
+    });
+
+    res.status(200).json({
+      ok: true,
+      cantidad: clasificacion.length,
+      data: clasificacion,
+    });
+  } catch (error) {
+    console.error("Error obteniendo clasificacion:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Error obteniendo clasificacion",
+      error: error.message,
+    });
+  }
+};
+
 const postLiga = async (req, res) => {
   try {
     const { nombre, temporada_actual, descripcion, activa } = req.body;
@@ -237,6 +345,7 @@ const deleteLiga = async (req, res) => {
 module.exports = {
   getLigas,
   getLigaById,
+  getClasificacionLiga,
   postLiga,
   putLiga,
   deleteLiga,

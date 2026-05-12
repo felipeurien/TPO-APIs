@@ -1,6 +1,14 @@
 const pool = require("../config/db");
 
-const validarEquiposPartido = async (idEquipoLocal, idEquipoVisitante) => {
+const normalizarEstadoPartido = (estado) => {
+  if (estado === "finalizado") {
+    return "jugado";
+  }
+
+  return estado || "programado";
+};
+
+const validarEquiposPartido = async (idEquipoLocal, idEquipoVisitante, idLiga) => {
   if (Number(idEquipoLocal) === Number(idEquipoVisitante)) {
     return "El equipo local y el equipo visitante no pueden ser el mismo";
   }
@@ -10,12 +18,13 @@ const validarEquiposPartido = async (idEquipoLocal, idEquipoVisitante) => {
     SELECT id_equipo
     FROM equipos
     WHERE id_equipo IN (?, ?)
+      AND id_liga = ?
     `,
-    [idEquipoLocal, idEquipoVisitante],
+    [idEquipoLocal, idEquipoVisitante, idLiga],
   );
 
   if (equipos.length < 2) {
-    return "El equipo local y el equipo visitante deben existir";
+    return "El equipo local y el equipo visitante deben existir y pertenecer a la liga indicada";
   }
 
   return null;
@@ -26,6 +35,7 @@ const getPartidos = async (req, res) => {
     const [rows] = await pool.query(`
       SELECT
         p.id_partido,
+        p.id_liga,
         p.id_equipo_local,
         local.nombre AS equipo_local,
         p.id_equipo_visitante,
@@ -65,6 +75,7 @@ const getPartidoById = async (req, res) => {
       `
       SELECT
         p.id_partido,
+        p.id_liga,
         p.id_equipo_local,
         local.nombre AS equipo_local,
         p.id_equipo_visitante,
@@ -109,6 +120,7 @@ const postPartido = async (req, res) => {
     const {
       id_equipo_local,
       id_equipo_visitante,
+      id_liga,
       fecha,
       horario,
       lugar,
@@ -117,14 +129,14 @@ const postPartido = async (req, res) => {
       estado,
     } = req.body;
 
-    if (!id_equipo_local || !id_equipo_visitante || !fecha || !horario || !lugar) {
+    if (!id_equipo_local || !id_equipo_visitante || !id_liga || !fecha || !horario || !lugar) {
       return res.status(400).json({
         ok: false,
-        message: "Equipo local, equipo visitante, fecha, horario y lugar son obligatorios",
+        message: "Equipo local, equipo visitante, liga, fecha, horario y lugar son obligatorios",
       });
     }
 
-    const errorEquipos = await validarEquiposPartido(id_equipo_local, id_equipo_visitante);
+    const errorEquipos = await validarEquiposPartido(id_equipo_local, id_equipo_visitante, id_liga);
 
     if (errorEquipos) {
       return res.status(400).json({
@@ -138,6 +150,7 @@ const postPartido = async (req, res) => {
       INSERT INTO partidos (
         id_equipo_local,
         id_equipo_visitante,
+        id_liga,
         fecha,
         horario,
         lugar,
@@ -145,17 +158,18 @@ const postPartido = async (req, res) => {
         resultado_visitante,
         estado
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         id_equipo_local,
         id_equipo_visitante,
+        id_liga,
         fecha,
         horario,
         lugar,
         resultado_local ?? null,
         resultado_visitante ?? null,
-        estado || "programado",
+        normalizarEstadoPartido(estado),
       ],
     );
 
@@ -163,6 +177,7 @@ const postPartido = async (req, res) => {
       `
       SELECT
         id_partido,
+        id_liga,
         id_equipo_local,
         id_equipo_visitante,
         fecha,
@@ -198,6 +213,7 @@ const putPartido = async (req, res) => {
     const {
       id_equipo_local,
       id_equipo_visitante,
+      id_liga,
       fecha,
       horario,
       lugar,
@@ -206,14 +222,14 @@ const putPartido = async (req, res) => {
       estado,
     } = req.body;
 
-    if (!id_equipo_local || !id_equipo_visitante || !fecha || !horario || !lugar) {
+    if (!id_equipo_local || !id_equipo_visitante || !id_liga || !fecha || !horario || !lugar) {
       return res.status(400).json({
         ok: false,
-        message: "Equipo local, equipo visitante, fecha, horario y lugar son obligatorios",
+        message: "Equipo local, equipo visitante, liga, fecha, horario y lugar son obligatorios",
       });
     }
 
-    const errorEquipos = await validarEquiposPartido(id_equipo_local, id_equipo_visitante);
+    const errorEquipos = await validarEquiposPartido(id_equipo_local, id_equipo_visitante, id_liga);
 
     if (errorEquipos) {
       return res.status(400).json({
@@ -228,6 +244,7 @@ const putPartido = async (req, res) => {
       SET
         id_equipo_local = ?,
         id_equipo_visitante = ?,
+        id_liga = ?,
         fecha = ?,
         horario = ?,
         lugar = ?,
@@ -239,12 +256,13 @@ const putPartido = async (req, res) => {
       [
         id_equipo_local,
         id_equipo_visitante,
+        id_liga,
         fecha,
         horario,
         lugar,
         resultado_local ?? null,
         resultado_visitante ?? null,
-        estado || "programado",
+        normalizarEstadoPartido(estado),
         id,
       ],
     );
@@ -260,6 +278,7 @@ const putPartido = async (req, res) => {
       `
       SELECT
         id_partido,
+        id_liga,
         id_equipo_local,
         id_equipo_visitante,
         fecha,
@@ -307,7 +326,7 @@ const patchResultadoPartido = async (req, res) => {
       SET resultado_local = ?, resultado_visitante = ?, estado = ?
       WHERE id_partido = ?
       `,
-      [resultado_local, resultado_visitante, "finalizado", id],
+      [resultado_local, resultado_visitante, "jugado", id],
     );
 
     if (result.affectedRows === 0) {
@@ -321,6 +340,7 @@ const patchResultadoPartido = async (req, res) => {
       `
       SELECT
         id_partido,
+        id_liga,
         id_equipo_local,
         id_equipo_visitante,
         fecha,

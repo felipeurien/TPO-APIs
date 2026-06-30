@@ -8,9 +8,57 @@ const normalizarEstadoPartido = (estado) => {
   return estado || "programado";
 };
 
+const esEnteroNoNegativo = (valor) => {
+  if (valor === "" || valor === null || valor === undefined) {
+    return false;
+  }
+
+  const numero = Number(valor);
+  return Number.isInteger(numero) && numero >= 0;
+};
+
+const validarResultadoCompleto = (resultadoLocal, resultadoVisitante, obligatorio = false) => {
+  const tieneLocal = resultadoLocal !== undefined && resultadoLocal !== null;
+  const tieneVisitante = resultadoVisitante !== undefined && resultadoVisitante !== null;
+
+  if (!obligatorio && !tieneLocal && !tieneVisitante) {
+    return null;
+  }
+
+  if (!tieneLocal || !tieneVisitante) {
+    return "Resultado local y resultado visitante deben cargarse juntos";
+  }
+
+  if (!esEnteroNoNegativo(resultadoLocal) || !esEnteroNoNegativo(resultadoVisitante)) {
+    return "Los resultados deben ser numeros enteros no negativos";
+  }
+
+  return null;
+};
+
+const existeLiga = async (idLiga) => {
+  const [ligas] = await pool.query(
+    `
+    SELECT id_liga
+    FROM ligas
+    WHERE id_liga = ?
+    LIMIT 1
+    `,
+    [idLiga],
+  );
+
+  return ligas.length > 0;
+};
+
 const validarEquiposPartido = async (idEquipoLocal, idEquipoVisitante, idLiga) => {
   if (Number(idEquipoLocal) === Number(idEquipoVisitante)) {
     return "El equipo local y el equipo visitante no pueden ser el mismo";
+  }
+
+  const ligaExiste = await existeLiga(idLiga);
+
+  if (!ligaExiste) {
+    return "La liga indicada no existe";
   }
 
   const [equipos] = await pool.query(
@@ -145,6 +193,15 @@ const postPartido = async (req, res) => {
       });
     }
 
+    const errorResultado = validarResultadoCompleto(resultado_local, resultado_visitante);
+
+    if (errorResultado) {
+      return res.status(400).json({
+        ok: false,
+        message: errorResultado,
+      });
+    }
+
     const [result] = await pool.query(
       `
       INSERT INTO partidos (
@@ -238,6 +295,15 @@ const putPartido = async (req, res) => {
       });
     }
 
+    const errorResultado = validarResultadoCompleto(resultado_local, resultado_visitante);
+
+    if (errorResultado) {
+      return res.status(400).json({
+        ok: false,
+        message: errorResultado,
+      });
+    }
+
     const [result] = await pool.query(
       `
       UPDATE partidos
@@ -317,6 +383,15 @@ const patchResultadoPartido = async (req, res) => {
       return res.status(400).json({
         ok: false,
         message: "Resultado local y resultado visitante son obligatorios",
+      });
+    }
+
+    const errorResultado = validarResultadoCompleto(resultado_local, resultado_visitante, true);
+
+    if (errorResultado) {
+      return res.status(400).json({
+        ok: false,
+        message: errorResultado,
       });
     }
 

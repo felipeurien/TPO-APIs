@@ -1,5 +1,37 @@
 const pool = require("../config/db");
 
+const existeRegistro = async (tabla, columna, id) => {
+  const [rows] = await pool.query(
+    `
+    SELECT ${columna}
+    FROM ${tabla}
+    WHERE ${columna} = ?
+    LIMIT 1
+    `,
+    [id],
+  );
+
+  return rows.length > 0;
+};
+
+const validarRelacionesEquipo = async (idLiga, idEntrenador) => {
+  const ligaExiste = await existeRegistro("ligas", "id_liga", idLiga);
+
+  if (!ligaExiste) {
+    return "La liga indicada no existe";
+  }
+
+  if (idEntrenador) {
+    const entrenadorExiste = await existeRegistro("entrenadores", "id_entrenador", idEntrenador);
+
+    if (!entrenadorExiste) {
+      return "El entrenador indicado no existe";
+    }
+  }
+
+  return null;
+};
+
 const getEquipos = async (req, res) => {
   try {
     const [rows] = await pool.query(`
@@ -69,9 +101,68 @@ const getEquipoById = async (req, res) => {
       });
     }
 
+    const [jugadores] = await pool.query(
+      `
+      SELECT
+        id_jugador,
+        nombre,
+        apellido,
+        categoria,
+        id_equipo
+      FROM jugadores
+      WHERE id_equipo = ?
+      ORDER BY apellido ASC, nombre ASC
+      `,
+      [id],
+    );
+
+    const partidosQuery = `
+      SELECT
+        p.id_partido,
+        p.id_liga,
+        p.id_equipo_local,
+        local.nombre AS equipo_local,
+        p.id_equipo_visitante,
+        visitante.nombre AS equipo_visitante,
+        p.fecha,
+        p.horario,
+        p.lugar,
+        p.resultado_local,
+        p.resultado_visitante,
+        p.estado
+      FROM partidos p
+      INNER JOIN equipos local ON p.id_equipo_local = local.id_equipo
+      INNER JOIN equipos visitante ON p.id_equipo_visitante = visitante.id_equipo
+      WHERE p.id_equipo_local = ? OR p.id_equipo_visitante = ?
+      ORDER BY p.fecha ASC, p.horario ASC
+    `;
+
+    const [partidos] = await pool.query(partidosQuery, [id, id]);
+    const partidosJugados = partidos.filter(
+      (partido) => partido.resultado_local !== null && partido.resultado_visitante !== null,
+    );
+    const partidosPendientes = partidos.filter(
+      (partido) => partido.resultado_local === null || partido.resultado_visitante === null,
+    );
+
+    const equipo = rows[0];
+
     res.status(200).json({
       ok: true,
-      data: rows[0],
+      data: {
+        ...equipo,
+        entrenador: equipo.id_entrenador
+          ? {
+              id_entrenador: equipo.id_entrenador,
+              nombre: equipo.entrenador_nombre,
+              apellido: equipo.entrenador_apellido,
+            }
+          : null,
+        jugadores,
+        partidos_jugados: partidosJugados,
+        partidos_pendientes: partidosPendientes,
+        resultados: partidosJugados,
+      },
     });
   } catch (error) {
     console.error("Error obteniendo equipo:", error);
@@ -99,6 +190,15 @@ const postEquipo = async (req, res) => {
       return res.status(400).json({
         ok: false,
         message: "Nombre, categoria e id_liga son obligatorios",
+      });
+    }
+
+    const errorRelaciones = await validarRelacionesEquipo(id_liga, id_entrenador);
+
+    if (errorRelaciones) {
+      return res.status(400).json({
+        ok: false,
+        message: errorRelaciones,
       });
     }
 
@@ -167,6 +267,15 @@ const putEquipo = async (req, res) => {
       return res.status(400).json({
         ok: false,
         message: "Nombre, categoria e id_liga son obligatorios",
+      });
+    }
+
+    const errorRelaciones = await validarRelacionesEquipo(id_liga, id_entrenador);
+
+    if (errorRelaciones) {
+      return res.status(400).json({
+        ok: false,
+        message: errorRelaciones,
       });
     }
 

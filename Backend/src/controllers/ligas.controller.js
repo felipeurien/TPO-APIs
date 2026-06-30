@@ -105,6 +105,12 @@ const getClasificacionLiga = async (req, res) => {
         ), 0) AS ganados,
         COALESCE(SUM(
           CASE
+            WHEN p.resultado_local = p.resultado_visitante THEN 1
+            ELSE 0
+          END
+        ), 0) AS empatados,
+        COALESCE(SUM(
+          CASE
             WHEN p.id_equipo_local = e.id_equipo
               AND p.resultado_local < p.resultado_visitante THEN 1
             WHEN p.id_equipo_visitante = e.id_equipo
@@ -128,20 +134,22 @@ const getClasificacionLiga = async (req, res) => {
         ), 0) AS puntos_contra
       FROM equipos e
       LEFT JOIN partidos p
-        ON p.estado = 'jugado'
+        ON p.resultado_local IS NOT NULL
+        AND p.resultado_visitante IS NOT NULL
         AND (
           p.id_equipo_local = e.id_equipo
           OR p.id_equipo_visitante = e.id_equipo
         )
       WHERE e.id_liga = ?
       GROUP BY e.id_equipo, e.nombre, e.categoria
-      ORDER BY ganados DESC, puntos_favor - puntos_contra DESC, puntos_favor DESC, e.nombre ASC
+      ORDER BY (ganados * 3 + empatados) DESC, puntos_favor - puntos_contra DESC, puntos_favor DESC, e.nombre ASC
       `,
       [id],
     );
 
     const clasificacion = rows.map((equipo) => {
       const ganados = Number(equipo.ganados);
+      const empatados = Number(equipo.empatados);
       const perdidos = Number(equipo.perdidos);
       const puntosFavor = Number(equipo.puntos_favor);
       const puntosContra = Number(equipo.puntos_contra);
@@ -152,11 +160,12 @@ const getClasificacionLiga = async (req, res) => {
         categoria: equipo.categoria,
         partidos_jugados: Number(equipo.partidos_jugados),
         ganados,
+        empatados,
         perdidos,
         puntos_favor: puntosFavor,
         puntos_contra: puntosContra,
         diferencia: puntosFavor - puntosContra,
-        puntos: ganados * 2 + perdidos,
+        puntos: ganados * 3 + empatados,
       };
     });
 

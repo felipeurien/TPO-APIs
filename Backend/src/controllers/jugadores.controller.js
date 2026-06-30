@@ -1,5 +1,19 @@
 const pool = require("../config/db");
 
+const existeEquipo = async (idEquipo) => {
+  const [rows] = await pool.query(
+    `
+    SELECT id_equipo
+    FROM equipos
+    WHERE id_equipo = ?
+    LIMIT 1
+    `,
+    [idEquipo],
+  );
+
+  return rows.length > 0;
+};
+
 const getJugadores = async (req, res) => {
   try {
     const { id_equipo } = req.query;
@@ -94,6 +108,15 @@ const postJugador = async (req, res) => {
       });
     }
 
+    const equipoExiste = await existeEquipo(id_equipo);
+
+    if (!equipoExiste) {
+      return res.status(400).json({
+        ok: false,
+        message: "El equipo indicado no existe",
+      });
+    }
+
     const [result] = await pool.query(
       `
       INSERT INTO jugadores (nombre, apellido, categoria, id_equipo)
@@ -140,6 +163,15 @@ const putJugador = async (req, res) => {
       return res.status(400).json({
         ok: false,
         message: "Nombre, apellido, categoria e id_equipo son obligatorios",
+      });
+    }
+
+    const equipoExiste = await existeEquipo(id_equipo);
+
+    if (!equipoExiste) {
+      return res.status(400).json({
+        ok: false,
+        message: "El equipo indicado no existe",
       });
     }
 

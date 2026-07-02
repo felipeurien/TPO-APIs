@@ -3,11 +3,15 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+const banfieldShieldUrl = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAGdUlEQVR42u2beWwUVRzHRxA8gKiclZAG1KRKEy1CFWhnZtutdDeIBRsOo4gBFPsHMTFRW7EEmwhJsRoRJEgLJi2l7Hbn6LalHC1gEbANBZYearEUW1p67jHXHrP7fK9yFtvd3rsw3+Slm+b3fsdn3jGTvIdhXiQY8VdtRtVkb3aW/MhnBIbYAHQLnsB8FE9FvsLTqjBf7ZFvFAPF8maLcka5YwMRcmJjCKdAE0e92YoMsV06upyXaDzZF9+oCLFA2wJbq41ST/Klj8QQm6SjK3iRJb71+uAY4gjKnSvEp/QbgJRHzCrNJYUSfRQvUJFv9mRnZyNC7EVLO91SB2cvWtYp0vhrvT7JE6pHIbBc1xW9DTWRJgxgz9wxvRaUR4ZLRW93uO1mGGOp2WFUvdijLYsvLoY5n9aTAqphYACgk+AMjVRLkR0CTX4EdKFjbxeyZcsoIQ+PE42LrsntJt7j8QC35W/RXhTfCZ9WYvehCgD2iMSQOCz+tNO0w+q5KfQb/u+MxBIEsrlvpNDk513FW+skFEPuuMyLxth/UGyUw50pEjoW5YhynQFzLh0sAKP2asHkDI3jx4PRfAtNtogsXgoTLhHzohsdv3/Fu7kGESV2q7mdnGP7IW1njYG0QLtLaArBv7920sR1U+EKi9x2gbvbvquotgu8qXC51UwTNxAggcGPQYimvwykbZchrs0Dfd4Tg2sUHWXJvJinbhIZ/ATyj3LbcVDNTU7XOFDOgwrgVhu9VytPzdBYgmD7qZJp617IrTZh/zIR2Y9L19pmZmisU6A97OtaXLTZ2lOfRYVfCtDGiXzP2hdrGw/7Ih/PZr3TY58dJkPHdGg/7T//8t25DgmAu9t3JsrqDUD35g3A//XpDUDqRT3fU34KAAWAAkABoABQACgAFAAKAAWAAmD4AYxXACgAFAAKAAWAdwCyLA8IwPaLem7EAZSUlICYmBgwf/58kJqa6jOApqYmsHXrVp8BVFdXg4iICLBq1SrQ2trqHwCqqqrAwoULbydUWVnpM4DExEQQHBwMBEHwCUB5eTlYt24dyMrKAtu2bfMPAMnJyUCv1/d5Clgslq4Rk5aWBnbv3u0zgHnz5gGtVgtycnL/cA0VdC0SUpKAiEhIV1rgS8AlixZAoxGIwgPD/cPAFevXgVz5swBZ8+eBc3NzaCgoMArAEmSQFhYGKAoCtA0DVauXAlYlvUJQHx8fFes2bNn+88iWFNTA9avXw/i4uJuD83eAFRUVNwzampra8HOnTt7BBB0E0BdXR1Ys2YNSEhIAGVlZf4DYKjfA4L8fRtUACgA/BRA7sgCkBQACoBAB0CrZioAAh0ArKHfAESDasaZXBUfqABQ7qiGfgMAJ1SPX6NIy7h0rSvQADyVrnE2UKQZFGofG9BZQZElPjkFpwFyGCgAJqZrHOfg8BdY8kNsMIQclUGHkzI0dn8HMDVDI1UYVJxEk6uxwZTEEu9ego6DYAB/BYDOBlZRpFWk8XhsKCTQ+FJ09i/4JgR/AvD8vlh0mLNToEktNpTiGTz2Cgz0AgzoLwBC9y0S6ymyHW55Kmw4hI60wt2h/Xh1bsdIAzhemdNxHZ1eZSJfx4ZTXYeXCxbfcJv/EEYKgNx+mRPzY6/35cj94E4HFn9ZzNc0yu0mbrgByK3nOdH4Rr2DIl7CRlLoqDxMpE5uKeeGC4Dc/Bsn5sXU2g2Rz2H+IPS+LbLqP+WmUm6oAbgaizmBjaoa0CvukKwJbMR0iYm67Go4xg0VAFd9vk1kVRd4Vj0N80dxOnyKyJLnXfVG67j9cYMKwHlFj+4enLPqFkzE/FlmWvU0uv2xMSvGPFgAkg7EmOE3yUnARkzAAkFApxov0kTxFwfuh9BHAJ6UbLVFYvDDwDj3SSyQhK64SQyR/0222ooK6QcA9/fZahscTdSAP2lHDkLoWFiA7ofsaHT1xe0rAHT15eecaA6uJ5nohhkWyAK65aMFmvglHRaECvMGYMxerevAoWgOvm7vAVuwUdiDIFQIHAm7smFhcUc29/j98NbhTVZaF8XBz9m07tfnAh8CLEhkyNSG4rVmj+xw3QfAJbkaj622CQz+NfYgS2LIzfbSjbzHJd6B4OSd9lMfCyKLf4Y9DIKL26f2UxsEVLjHYbXbT64VBJpMwB4moVvgUskHgnT8PR5ul+9jD6PsjCpGonByJHP4F9vSEECzYHPpAAAAAElFTkSuQmCC";
+const banfieldShieldUrlLocal =
+  "/escudos/banfield.svg";
+
 const clubs = [
   {
     name: "Banfield",
     short: "BAN",
-    shieldUrl: "https://commons.wikimedia.org/wiki/Special:FilePath/CA%20Banfield%20(2014).svg",
+    shieldUrl: banfieldShieldUrlLocal,
     description: "Easter egg invitado: Banfield abre la lista de equipos históricos.",
   },
   {
@@ -267,6 +271,7 @@ async function main() {
         for (const [matchIndex, [homeId, awayId]] of round.entries()) {
           const isPlayed = roundIndex < 7;
           const [homeScore, awayScore] = makeScore(roundIndex, matchIndex, categoryIndex, roundIndex >= firstLeg.length ? 1 : 0);
+          const homeTeam = teamIds.find((team) => team.id === homeId);
 
           await conn.execute(
             `INSERT INTO partidos (
@@ -285,7 +290,7 @@ async function main() {
               awayId,
               makeDate(roundIndex),
               makeTime(matchIndex),
-              `Estadio ${clubs[(matchIndex + categoryIndex) % clubs.length].short}`,
+              `Estadio ${homeTeam.club.short}`,
               isPlayed ? homeScore : null,
               isPlayed ? awayScore : null,
               isPlayed ? "jugado" : "programado",

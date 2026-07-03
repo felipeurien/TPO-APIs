@@ -32,40 +32,12 @@ El proyecto esta dividido en:
 - jsonwebtoken
 - dotenv
 
-Nota: el proyecto tiene dependencias de Prisma instaladas, pero los controladores actuales trabajan con consultas SQL mediante `mysql2/promise`.
-
 ### Frontend
 
 - React
 - Vite
 - JavaScript
 - CSS
-
-## Estructura
-
-```text
-TPO-APIs/
-  Backend/
-    index.js
-    src/
-      app.js
-      config/
-      controllers/
-      middleware/
-      routes/
-    scripts/
-  Frontend/
-    public/
-    src/
-      api/
-      components/
-      views/
-      utils/
-  REQUERIMIENTOS_TPO.md
-  README.md
-```
-
-## Configuracion
 
 ### Backend `.env`
 
@@ -516,25 +488,3 @@ El administrador puede:
 - `numero_fecha` debe ser entero positivo.
 - No se elimina una liga que tenga equipos asociados.
 
-## Backups
-
-Durante el desarrollo se generaron backups SQL en:
-
-```text
-Backups/
-```
-
-Ejemplos:
-
-- Backup previo a completar resultados U17.
-- Backup previo a cambios de prueba sobre la base local.
-
-## Estado de requerimientos
-
-El seguimiento detallado esta en:
-
-```text
-REQUERIMIENTOS_TPO.md
-```
-
-Ese archivo indica que esta cumplido y que queda pendiente para cierre/entrega.

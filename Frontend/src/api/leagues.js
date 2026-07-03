@@ -24,6 +24,10 @@ export function refreshLeaguePlayoffs(id, token) {
   return apiPost(`/ligas/${id}/playoffs/actualizar`, {}, { token });
 }
 
+export function resetLeaguePlayoffs(id, token) {
+  return apiDelete(`/ligas/${id}/playoffs`, { token });
+}
+
 export function createLeague(data, token) {
   return apiPost("/ligas", data, { token });
 }

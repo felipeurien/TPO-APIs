@@ -647,6 +647,61 @@ const postActualizarPlayoffsLiga = async (req, res) => {
   }
 };
 
+const deletePlayoffsLiga = async (req, res) => {
+  const connection = await pool.getConnection();
+
+  try {
+    const { id } = req.params;
+
+    if (!(await ensureLigaExists(id))) {
+      return res.status(404).json({
+        ok: false,
+        message: "Liga no encontrada",
+      });
+    }
+
+    await connection.beginTransaction();
+
+    const [partidosResult] = await connection.query(
+      `
+      DELETE FROM partidos
+      WHERE id_liga = ?
+        AND fase = ?
+      `,
+      [id, PLAYOFF_PHASE],
+    );
+
+    const [seriesResult] = await connection.query(
+      `
+      DELETE FROM playoff_series
+      WHERE id_liga = ?
+      `,
+      [id],
+    );
+
+    await connection.commit();
+
+    res.status(200).json({
+      ok: true,
+      message: "Playoffs reiniciados correctamente",
+      data: {
+        partidos_eliminados: partidosResult.affectedRows,
+        series_eliminadas: seriesResult.affectedRows,
+      },
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error("Error reiniciando playoffs:", error);
+    res.status(500).json({
+      ok: false,
+      message: "Error reiniciando playoffs",
+      error: error.message,
+    });
+  } finally {
+    connection.release();
+  }
+};
+
 const postLiga = async (req, res) => {
   try {
     const { nombre, temporada_actual, descripcion, activa } = req.body;
@@ -813,6 +868,7 @@ module.exports = {
   getPlayoffsLiga,
   postGenerarPlayoffsLiga,
   postActualizarPlayoffsLiga,
+  deletePlayoffsLiga,
   postLiga,
   putLiga,
   deleteLiga,

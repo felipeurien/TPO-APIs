@@ -200,15 +200,21 @@ function SelectInput({ value, onChange, options, placeholder, required = false }
 
 function AdminForm({ tab, form, setForm, editingId, onSubmit, onCancel, leagues, teams, coaches, categories }) {
   const leagueOptions = leagues.map((league) => ({ value: league.id_liga, label: league.nombre }));
-  const teamOptions = teams.map((team) => ({ value: team.id_equipo, label: team.nombre }));
   const categoryOptions = categories
     .filter((category) => category.activa)
     .map((category) => ({ value: category.nombre, label: category.nombre }));
+  const playerTeamOptions = teams
+    .filter((team) => !form.categoria || team.categoria === form.categoria)
+    .map((team) => ({ value: team.id_equipo, label: team.nombre }));
   const matchTeamOptions = teams
     .filter((team) => !form.id_liga || Number(team.id_liga) === Number(form.id_liga))
     .map((team) => ({ value: team.id_equipo, label: team.nombre }));
   const coachOptions = coaches.map((coach) => ({ value: coach.id_entrenador, label: personName(coach) }));
-  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const update = (key, value) => setForm((current) => ({
+    ...current,
+    [key]: value,
+    ...(tab === "jugadores" && key === "categoria" ? { id_equipo: "" } : {}),
+  }));
 
   return (
     <form className="admin-form admin-form--grid" onSubmit={onSubmit}>
@@ -238,7 +244,7 @@ function AdminForm({ tab, form, setForm, editingId, onSubmit, onCancel, leagues,
           <AdminField label="Nombre"><TextInput required value={form.nombre} onChange={(value) => update("nombre", value)} /></AdminField>
           <AdminField label="Apellido"><TextInput required value={form.apellido} onChange={(value) => update("apellido", value)} /></AdminField>
           <AdminField label="Categoria"><SelectInput required value={form.categoria} onChange={(value) => update("categoria", value)} options={categoryOptions} placeholder="Elegir categoria" /></AdminField>
-          <AdminField label="Equipo"><SelectInput required value={form.id_equipo} onChange={(value) => update("id_equipo", value)} options={teamOptions} placeholder="Elegir equipo" /></AdminField>
+          <AdminField label="Equipo"><SelectInput required value={form.id_equipo} onChange={(value) => update("id_equipo", value)} options={playerTeamOptions} placeholder="Elegir equipo" /></AdminField>
         </>
       )}
 
@@ -327,12 +333,19 @@ function AdminFilters({ tab, filters, setFilters, rows, teams, teamById }) {
   if (tab === "admins" || tab === "ligas" || tab === "entrenadores" || tab === "categorias") return null;
 
   const categories = uniqueOptions(rows.flatMap((row) => getRowCategories(tab, row, teamById)));
-  const teamIdsInRows = new Set(rows.flatMap((row) => getRowTeamIds(tab, row)));
+  const rowsMatchingCategory = filters.categoria
+    ? rows.filter((row) => getRowCategories(tab, row, teamById).includes(filters.categoria))
+    : rows;
+  const teamIdsInRows = new Set(rowsMatchingCategory.flatMap((row) => getRowTeamIds(tab, row)));
   const teamOptions = teams
     .filter((team) => teamIdsInRows.has(Number(team.id_equipo)))
     .map((team) => ({ value: team.id_equipo, label: team.nombre }))
     .sort((a, b) => a.label.localeCompare(b.label, "es"));
-  const update = (key, value) => setFilters((current) => ({ ...current, [key]: value }));
+  const update = (key, value) => setFilters((current) => ({
+    ...current,
+    [key]: value,
+    ...(key === "categoria" ? { id_equipo: "" } : {}),
+  }));
   const hasFilters = Object.values(filters).some(Boolean);
 
   return (

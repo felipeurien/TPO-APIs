@@ -14,6 +14,7 @@
     "setup:playoffs": "node scripts/setup-playoffs.js",
     "setup:rounds": "node scripts/setup-rounds.js",
     "testdata:u17": "node scripts/complete-u17-results.js",
+    "testdata:senior": "node scripts/seed-senior-six-teams.js",
     "setup:categories": "node scripts/setup-categories.js"
   },
   "dependencies": {

@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import {
   AdRotator,
   LeagueTitleSelect,
@@ -28,6 +29,14 @@ function getCalendarMonth(matches) {
     .map((match) => parseDateKey(match.fecha))
     .filter(Boolean)
     .sort((a, b) => b.key.localeCompare(a.key))[0];
+}
+
+function shiftCalendarMonth(month, offset) {
+  const date = new Date(month.year, month.monthIndex + offset, 1);
+  return {
+    year: date.getFullYear(),
+    monthIndex: date.getMonth(),
+  };
 }
 
 function MatchCarousel({ matches, teamByName, loading, error }) {
@@ -95,7 +104,12 @@ function MatchCarousel({ matches, teamByName, loading, error }) {
 }
 
 function MatchCalendar({ matches }) {
-  const calendarMonth = getCalendarMonth(matches);
+  const defaultMonth = useMemo(() => getCalendarMonth(matches), [matches]);
+  const [calendarMonth, setCalendarMonth] = useState(defaultMonth);
+
+  useEffect(() => {
+    setCalendarMonth(defaultMonth);
+  }, [defaultMonth?.year, defaultMonth?.monthIndex]);
 
   if (!calendarMonth) {
     return <p className="state">No hay partidos para armar el calendario.</p>;
@@ -137,7 +151,23 @@ function MatchCalendar({ matches }) {
 
   return (
     <div className="match-calendar">
-      <strong className="match-calendar__month">{monthLabel}</strong>
+      <div className="match-calendar__header">
+        <button
+          type="button"
+          aria-label="Mes anterior"
+          onClick={() => setCalendarMonth((current) => shiftCalendarMonth(current, -1))}
+        >
+          {"<"}
+        </button>
+        <strong className="match-calendar__month">{monthLabel}</strong>
+        <button
+          type="button"
+          aria-label="Mes siguiente"
+          onClick={() => setCalendarMonth((current) => shiftCalendarMonth(current, 1))}
+        >
+          {">"}
+        </button>
+      </div>
       <div className="match-calendar__weekdays" aria-hidden="true">
         {["L", "M", "M", "J", "V", "S", "D"].map((day, index) => (
           <span key={`${day}-${index}`}>{day}</span>
@@ -152,6 +182,9 @@ function MatchCalendar({ matches }) {
 
           const key = `${calendarMonth.year}-${String(calendarMonth.monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const dayMatches = matchesByDate[key] || [];
+          const dayMatchesTitle = dayMatches
+            .map((match) => `${match.equipo_local} vs. ${match.equipo_visitante}`)
+            .join("\n");
 
           return (
             <span
@@ -162,7 +195,7 @@ function MatchCalendar({ matches }) {
               }
               title={
                 dayMatches.length
-                  ? `${dayMatches.length} partido${dayMatches.length > 1 ? "s" : ""}`
+                  ? dayMatchesTitle
                   : ""
               }
               key={key}

@@ -63,10 +63,6 @@ export default function TeamsView({ leagues, selectedLeagueId, setSelectedLeague
           leagues={leagues}
           selectedLeagueId={selectedLeagueId}
           setSelectedLeagueId={setSelectedLeagueId}
-          teams={teams}
-          selectedTeamId={selectedTeamId}
-          setSelectedTeamId={setSelectedTeamId}
-          showTeam
         />
       </section>
 

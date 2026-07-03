@@ -9,6 +9,7 @@ const {
   getPlayoffsLiga,
   postGenerarPlayoffsLiga,
   postActualizarPlayoffsLiga,
+  deletePlayoffsLiga,
   postLiga,
   putLiga,
   deleteLiga,
@@ -19,6 +20,7 @@ router.get("/:id/clasificacion", getClasificacionLiga);
 router.get("/:id/playoffs", getPlayoffsLiga);
 router.post("/:id/playoffs/generar", verificarToken, postGenerarPlayoffsLiga);
 router.post("/:id/playoffs/actualizar", verificarToken, postActualizarPlayoffsLiga);
+router.delete("/:id/playoffs", verificarToken, deletePlayoffsLiga);
 router.get("/:id", getLigaById);
 router.post("/", verificarToken, postLiga);
 router.put("/:id", verificarToken, putLiga);

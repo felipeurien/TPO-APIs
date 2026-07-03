@@ -3,6 +3,7 @@ import {
   generateLeaguePlayoffs,
   getLeaguePlayoffs,
   refreshLeaguePlayoffs,
+  resetLeaguePlayoffs,
 } from "../api/leagues";
 import {
   DataTable,
@@ -157,12 +158,19 @@ export default function PlayoffsView({
     setMessage("");
 
     try {
-      const response = action === "generate"
-        ? await generateLeaguePlayoffs(selectedLeagueId, token)
-        : await refreshLeaguePlayoffs(selectedLeagueId, token);
+      if (action === "reset") {
+        await resetLeaguePlayoffs(selectedLeagueId, token);
+        setMessage("Playoffs reiniciados. Ya podés generar el cuadro de nuevo.");
+        setPlayoffs(await getLeaguePlayoffs(selectedLeagueId));
+      } else {
+        const response = action === "generate"
+          ? await generateLeaguePlayoffs(selectedLeagueId, token)
+          : await refreshLeaguePlayoffs(selectedLeagueId, token);
 
-      setMessage(action === "generate" ? "Playoffs generados." : "Playoffs actualizados.");
-      setPlayoffs(response);
+        setMessage(action === "generate" ? "Playoffs generados." : "Playoffs actualizados.");
+        setPlayoffs(response);
+      }
+
       await refreshPublicData?.();
       await loadPlayoffs();
     } catch (actionError) {
@@ -194,6 +202,9 @@ export default function PlayoffsView({
               </button>
               <button type="button" onClick={() => handleAction("refresh")} disabled={actionLoading || !selectedLeagueId || series.length === 0}>
                 Actualizar
+              </button>
+              <button type="button" onClick={() => handleAction("reset")} disabled={actionLoading || !selectedLeagueId || series.length === 0}>
+                Reiniciar cuadro
               </button>
             </div>
           )}

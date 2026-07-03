@@ -529,9 +529,28 @@ a:hover,
   padding: 8px;
 }
 
+.match-calendar__header {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) 26px;
+  gap: 4px;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.match-calendar__header button {
+  width: 26px;
+  height: 24px;
+  border: 1px solid #9fb0c8;
+  border-radius: 3px;
+  background: linear-gradient(#ffffff, #d8e5f5);
+  color: #0a3266;
+  cursor: pointer;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .match-calendar__month {
   display: block;
-  margin-bottom: 7px;
   color: #114990;
   font-size: 14px;
   text-align: center;

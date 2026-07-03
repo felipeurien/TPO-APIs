@@ -110,7 +110,7 @@ cd Frontend
 npm install
 ```
 
-## Scripts
+## Scripts principales
 
 ### Backend
 
@@ -125,36 +125,6 @@ npm start
 ```
 
 Levanta la API con Node.
-
-```bash
-npm run setup:playoffs
-```
-
-Agrega columnas y tabla necesarias para playoffs.
-
-```bash
-npm run setup:rounds
-```
-
-Agrega `numero_fecha` a partidos y completa datos existentes por liga.
-
-```bash
-npm run setup:categories
-```
-
-Crea la tabla de categorias y la completa desde ligas, equipos y jugadores existentes.
-
-```bash
-npm run fix:venues
-```
-
-Script auxiliar para corregir sedes/lugares de partidos.
-
-```bash
-npm run testdata:u17
-```
-
-Completa partidos pendientes de U17 con datos de prueba para validar fixture y clasificacion.
 
 ### Frontend
 
@@ -180,29 +150,23 @@ Previsualiza el build.
 
 1. Levantar MySQL y verificar que la base `liga_basket` exista.
 2. Configurar `Backend/.env`.
-3. Correr migraciones/scripts necesarios:
+3. Levantar backend:
 
 ```bash
 cd Backend
-npm run setup:playoffs
-npm run setup:rounds
-npm run setup:categories
-```
-
-4. Levantar backend:
-
-```bash
 npm run dev
 ```
 
-5. Levantar frontend:
+4. Levantar frontend:
 
 ```bash
 cd ../Frontend
 npm run dev
 ```
 
-6. Abrir la URL que indique Vite.
+5. Abrir la URL que indique Vite.
+
+Nota: la base entregada ya debe incluir la estructura y los datos necesarios. Los scripts auxiliares de migracion y datos de prueba quedan en `Backend/scripts/`, pero no son parte del flujo normal de uso.
 
 ## Autenticacion
 
@@ -261,6 +225,35 @@ GET /partidos/:id
 
 GET /categorias
 ```
+
+## Consumo de datos desde el frontend
+
+El frontend carga los datos principales al iniciar la aplicacion:
+
+- `GET /ligas`
+- `GET /equipos`
+- `GET /partidos`
+- `GET /jugadores`
+- `GET /entrenadores`
+- `GET /categorias`
+
+Con esa informacion arma las vistas publicas y aplica filtros del lado del cliente.
+
+Ejemplos:
+
+- En `Inicio`, `Fixture`, `Posiciones` y `Playoffs`, primero se cargan todos los partidos y luego se muestran los que pertenecen a la liga seleccionada.
+- En `Equipos`, se muestran los equipos de la liga seleccionada.
+- Al seleccionar un equipo se hace una request puntual a `GET /equipos/:id` para traer su ficha completa, entrenador, plantel y partidos asociados.
+- En el panel admin se trabaja con los mismos listados cargados y, despues de crear/editar/borrar, se refrescan los datos publicos.
+
+Esta decision simplifica la navegacion porque el volumen de datos del TPO es bajo. En una version productiva con muchos partidos convendria agregar filtros en backend, por ejemplo:
+
+```http
+GET /partidos?id_liga=17
+GET /jugadores?id_equipo=156
+```
+
+Actualmente `GET /jugadores?id_equipo=...` ya soporta filtro por equipo, pero el frontend usa la carga general para mantener las vistas sincronizadas.
 
 ## Rutas privadas
 
@@ -535,22 +528,6 @@ Ejemplos:
 
 - Backup previo a completar resultados U17.
 - Backup previo a cambios de prueba sobre la base local.
-
-## Datos de prueba
-
-Para completar resultados de U17 y probar clasificacion:
-
-```bash
-cd Backend
-npm run testdata:u17
-```
-
-Este script:
-
-- Busca la liga U17.
-- Completa partidos regulares pendientes.
-- Evita empates para mantener resultados consistentes con basket.
-- No duplica partidos.
 
 ## Estado de requerimientos
 

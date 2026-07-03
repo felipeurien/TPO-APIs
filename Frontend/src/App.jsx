@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AdminPanel from "./AdminPanel.jsx";
+import { getCategories } from "./api/categories";
 import { API_BASE_URL } from "./api/client";
 import { getCoaches } from "./api/coaches";
 import { getLeagueById, getLeagues, getLeagueStandings } from "./api/leagues";
@@ -9,11 +10,13 @@ import { getTeamById, getTeams } from "./api/teams";
 import { VIEWS } from "./constants";
 import FixtureView from "./views/FixtureView";
 import HomeView from "./views/HomeView";
+import PlayoffsView from "./views/PlayoffsView";
 import StandingsView from "./views/StandingsView";
 import TeamsView from "./views/TeamsView";
 
 function App() {
   const [view, setView] = useState("inicio");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [adminSession, setAdminSession] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem("adminSession")) || null;
@@ -26,6 +29,7 @@ function App() {
   const [matches, setMatches] = useState([]);
   const [players, setPlayers] = useState([]);
   const [coaches, setCoaches] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [selectedLeagueId, setSelectedLeagueId] = useState(null);
   const [selectedTeamId, setSelectedTeamId] = useState(null);
   const [leagueDetail, setLeagueDetail] = useState(null);
@@ -37,6 +41,7 @@ function App() {
     matches: true,
     players: true,
     coaches: true,
+    categories: true,
     leagueDetail: false,
     teamDetail: false,
   });
@@ -46,6 +51,7 @@ function App() {
     matches: "",
     players: "",
     coaches: "",
+    categories: "",
     leagueDetail: "",
     teamDetail: "",
   });
@@ -58,6 +64,7 @@ function App() {
       matches: true,
       players: true,
       coaches: true,
+      categories: true,
     }));
 
     const results = await Promise.allSettled([
@@ -66,9 +73,10 @@ function App() {
       getMatches(),
       getPlayers(),
       getCoaches(),
+      getCategories(),
     ]);
 
-    const [leaguesResult, teamsResult, matchesResult, playersResult, coachesResult] = results;
+    const [leaguesResult, teamsResult, matchesResult, playersResult, coachesResult, categoriesResult] = results;
 
     if (leaguesResult.status === "fulfilled") {
       setLeagues(leaguesResult.value);
@@ -106,6 +114,13 @@ function App() {
       setErrors((current) => ({ ...current, coaches: coachesResult.reason.message }));
     }
 
+    if (categoriesResult.status === "fulfilled") {
+      setCategories(categoriesResult.value);
+      setErrors((current) => ({ ...current, categories: "" }));
+    } else {
+      setErrors((current) => ({ ...current, categories: categoriesResult.reason.message }));
+    }
+
     setLoading((current) => ({
       ...current,
       leagues: false,
@@ -113,6 +128,7 @@ function App() {
       matches: false,
       players: false,
       coaches: false,
+      categories: false,
     }));
   };
 
@@ -206,6 +222,11 @@ function App() {
     localStorage.removeItem("adminSession");
   };
 
+  const handleViewChange = (viewId) => {
+    setView(viewId);
+    setMobileNavOpen(false);
+  };
+
   const teamByName = useMemo(
     () => new Map(teams.map((team) => [team.nombre, team])),
     [teams],
@@ -233,6 +254,8 @@ function App() {
     loading,
     errors,
     setView,
+    adminSession,
+    refreshPublicData,
   };
 
   return (
@@ -253,13 +276,28 @@ function App() {
           </div>
         </div>
 
-        <nav className="main-nav" aria-label="Navegacion principal">
+        <button
+          type="button"
+          className="nav-toggle"
+          aria-expanded={mobileNavOpen}
+          aria-controls="main-navigation"
+          onClick={() => setMobileNavOpen((open) => !open)}
+        >
+          <span aria-hidden="true"></span>
+          <span>Menu</span>
+        </button>
+
+        <nav
+          id="main-navigation"
+          className={mobileNavOpen ? "main-nav main-nav--open" : "main-nav"}
+          aria-label="Navegacion principal"
+        >
           {VIEWS.map((item) => (
             <button
               key={item.id}
               type="button"
               className={view === item.id ? "main-nav__active" : ""}
-              onClick={() => setView(item.id)}
+              onClick={() => handleViewChange(item.id)}
             >
               {item.label}
             </button>
@@ -271,6 +309,7 @@ function App() {
       {view === "equipos" && <TeamsView {...viewProps} />}
       {view === "fixture" && <FixtureView {...viewProps} />}
       {view === "posiciones" && <StandingsView {...viewProps} />}
+      {view === "playoffs" && <PlayoffsView {...viewProps} />}
       {view === "admin" && (
         <AdminPanel
           session={adminSession}
@@ -280,6 +319,7 @@ function App() {
           teams={teams}
           players={players}
           coaches={coaches}
+          categories={categories}
           matches={matches}
           refreshData={refreshPublicData}
         />
@@ -287,8 +327,8 @@ function App() {
 
       <footer className="site-footer">
         <nav>
-          {VIEWS.slice(0, 5).map((item) => (
-            <button key={item.id} type="button" onClick={() => setView(item.id)}>{item.label}</button>
+          {VIEWS.map((item) => (
+            <button key={item.id} type="button" onClick={() => handleViewChange(item.id)}>{item.label}</button>
           ))}
         </nav>
         <p>Liga Metropolitana de Basket - Datos publicos - API {API_BASE_URL}</p>

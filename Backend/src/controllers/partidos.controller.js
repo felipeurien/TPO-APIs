@@ -17,6 +17,51 @@ const esEnteroNoNegativo = (valor) => {
   return Number.isInteger(numero) && numero >= 0;
 };
 
+const esEnteroPositivo = (valor) => {
+  if (valor === "" || valor === null || valor === undefined) {
+    return false;
+  }
+
+  const numero = Number(valor);
+  return Number.isInteger(numero) && numero > 0;
+};
+
+const resolverNumeroFecha = async (idLiga, fecha, numeroFecha) => {
+  if (numeroFecha !== undefined && numeroFecha !== null && numeroFecha !== "") {
+    return Number(numeroFecha);
+  }
+
+  const [mismaFecha] = await pool.query(
+    `
+    SELECT numero_fecha
+    FROM partidos
+    WHERE id_liga = ?
+      AND fecha = ?
+      AND COALESCE(fase, 'regular') = 'regular'
+      AND numero_fecha IS NOT NULL
+    ORDER BY numero_fecha ASC
+    LIMIT 1
+    `,
+    [idLiga, fecha],
+  );
+
+  if (mismaFecha.length > 0) {
+    return Number(mismaFecha[0].numero_fecha);
+  }
+
+  const [ultimaFecha] = await pool.query(
+    `
+    SELECT COALESCE(MAX(numero_fecha), 0) + 1 AS siguiente_fecha
+    FROM partidos
+    WHERE id_liga = ?
+      AND COALESCE(fase, 'regular') = 'regular'
+    `,
+    [idLiga],
+  );
+
+  return Number(ultimaFecha[0]?.siguiente_fecha || 1);
+};
+
 const validarResultadoCompleto = (resultadoLocal, resultadoVisitante, obligatorio = false) => {
   const tieneLocal = resultadoLocal !== undefined && resultadoLocal !== null;
   const tieneVisitante = resultadoVisitante !== undefined && resultadoVisitante !== null;
@@ -93,7 +138,12 @@ const getPartidos = async (req, res) => {
         p.lugar,
         p.resultado_local,
         p.resultado_visitante,
-        p.estado
+        p.estado,
+        p.numero_fecha,
+        p.fase,
+        p.ronda,
+        p.numero_juego,
+        p.id_serie
       FROM partidos p
       INNER JOIN equipos local ON p.id_equipo_local = local.id_equipo
       INNER JOIN equipos visitante ON p.id_equipo_visitante = visitante.id_equipo
@@ -133,7 +183,12 @@ const getPartidoById = async (req, res) => {
         p.lugar,
         p.resultado_local,
         p.resultado_visitante,
-        p.estado
+        p.estado,
+        p.numero_fecha,
+        p.fase,
+        p.ronda,
+        p.numero_juego,
+        p.id_serie
       FROM partidos p
       INNER JOIN equipos local ON p.id_equipo_local = local.id_equipo
       INNER JOIN equipos visitante ON p.id_equipo_visitante = visitante.id_equipo
@@ -175,6 +230,11 @@ const postPartido = async (req, res) => {
       resultado_local,
       resultado_visitante,
       estado,
+      numero_fecha,
+      fase,
+      ronda,
+      numero_juego,
+      id_serie,
     } = req.body;
 
     if (!id_equipo_local || !id_equipo_visitante || !id_liga || !fecha || !horario || !lugar) {
@@ -202,6 +262,15 @@ const postPartido = async (req, res) => {
       });
     }
 
+    if (numero_fecha !== undefined && numero_fecha !== null && numero_fecha !== "" && !esEnteroPositivo(numero_fecha)) {
+      return res.status(400).json({
+        ok: false,
+        message: "El numero de fecha debe ser un entero positivo",
+      });
+    }
+
+    const numeroFechaFinal = await resolverNumeroFecha(id_liga, fecha, numero_fecha);
+
     const [result] = await pool.query(
       `
       INSERT INTO partidos (
@@ -213,9 +282,14 @@ const postPartido = async (req, res) => {
         lugar,
         resultado_local,
         resultado_visitante,
-        estado
+        estado,
+        numero_fecha,
+        fase,
+        ronda,
+        numero_juego,
+        id_serie
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [
         id_equipo_local,
@@ -227,6 +301,11 @@ const postPartido = async (req, res) => {
         resultado_local ?? null,
         resultado_visitante ?? null,
         normalizarEstadoPartido(estado),
+        numeroFechaFinal,
+        fase ?? "regular",
+        ronda ?? null,
+        numero_juego ?? null,
+        id_serie ?? null,
       ],
     );
 
@@ -242,7 +321,12 @@ const postPartido = async (req, res) => {
         lugar,
         resultado_local,
         resultado_visitante,
-        estado
+        estado,
+        numero_fecha,
+        fase,
+        ronda,
+        numero_juego,
+        id_serie
       FROM partidos
       WHERE id_partido = ?
       `,
@@ -277,6 +361,11 @@ const putPartido = async (req, res) => {
       resultado_local,
       resultado_visitante,
       estado,
+      numero_fecha,
+      fase,
+      ronda,
+      numero_juego,
+      id_serie,
     } = req.body;
 
     if (!id_equipo_local || !id_equipo_visitante || !id_liga || !fecha || !horario || !lugar) {
@@ -304,6 +393,15 @@ const putPartido = async (req, res) => {
       });
     }
 
+    if (numero_fecha !== undefined && numero_fecha !== null && numero_fecha !== "" && !esEnteroPositivo(numero_fecha)) {
+      return res.status(400).json({
+        ok: false,
+        message: "El numero de fecha debe ser un entero positivo",
+      });
+    }
+
+    const numeroFechaFinal = await resolverNumeroFecha(id_liga, fecha, numero_fecha);
+
     const [result] = await pool.query(
       `
       UPDATE partidos
@@ -316,7 +414,12 @@ const putPartido = async (req, res) => {
         lugar = ?,
         resultado_local = ?,
         resultado_visitante = ?,
-        estado = ?
+        estado = ?,
+        numero_fecha = ?,
+        fase = COALESCE(?, fase),
+        ronda = COALESCE(?, ronda),
+        numero_juego = COALESCE(?, numero_juego),
+        id_serie = COALESCE(?, id_serie)
       WHERE id_partido = ?
       `,
       [
@@ -329,6 +432,11 @@ const putPartido = async (req, res) => {
         resultado_local ?? null,
         resultado_visitante ?? null,
         normalizarEstadoPartido(estado),
+        numeroFechaFinal,
+        fase ?? null,
+        ronda ?? null,
+        numero_juego ?? null,
+        id_serie ?? null,
         id,
       ],
     );
@@ -352,7 +460,12 @@ const putPartido = async (req, res) => {
         lugar,
         resultado_local,
         resultado_visitante,
-        estado
+        estado,
+        numero_fecha,
+        fase,
+        ronda,
+        numero_juego,
+        id_serie
       FROM partidos
       WHERE id_partido = ?
       `,
@@ -423,7 +536,12 @@ const patchResultadoPartido = async (req, res) => {
         lugar,
         resultado_local,
         resultado_visitante,
-        estado
+        estado,
+        numero_fecha,
+        fase,
+        ronda,
+        numero_juego,
+        id_serie
       FROM partidos
       WHERE id_partido = ?
       `,

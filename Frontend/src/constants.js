@@ -3,5 +3,6 @@ export const VIEWS = [
   { id: "equipos", label: "Equipos" },
   { id: "fixture", label: "Fixture" },
   { id: "posiciones", label: "Posiciones" },
+  { id: "playoffs", label: "Playoffs" },
   { id: "admin", label: "Admin" },
 ];

@@ -10,7 +10,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "fix:venues": "node scripts/fix-match-venues.js"
+    "fix:venues": "node scripts/fix-match-venues.js",
+    "setup:playoffs": "node scripts/setup-playoffs.js",
+    "setup:rounds": "node scripts/setup-rounds.js",
+    "testdata:u17": "node scripts/complete-u17-results.js",
+    "setup:categories": "node scripts/setup-categories.js"
   },
   "dependencies": {
     "@prisma/client": "^7.8.0",

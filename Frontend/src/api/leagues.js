@@ -12,6 +12,18 @@ export function getLeagueStandings(id) {
   return apiGet(`/ligas/${id}/clasificacion`);
 }
 
+export function getLeaguePlayoffs(id) {
+  return apiGet(`/ligas/${id}/playoffs`);
+}
+
+export function generateLeaguePlayoffs(id, token) {
+  return apiPost(`/ligas/${id}/playoffs/generar`, {}, { token });
+}
+
+export function refreshLeaguePlayoffs(id, token) {
+  return apiPost(`/ligas/${id}/playoffs/actualizar`, {}, { token });
+}
+
 export function createLeague(data, token) {
   return apiPost("/ligas", data, { token });
 }

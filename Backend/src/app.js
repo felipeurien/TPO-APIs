@@ -3,6 +3,7 @@ const cors = require("cors");
 
 const administradoresRoutes = require("./routes/administradores.routes");
 const authRoutes = require("./routes/auth.routes");
+const categoriasRoutes = require("./routes/categorias.routes");
 const entrenadoresRoutes = require("./routes/entrenadores.routes");
 const equiposRoutes = require("./routes/equipos.routes");
 const jugadoresRoutes = require("./routes/jugadores.routes");
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 
 app.use("/administradores", administradoresRoutes);
 app.use("/auth", authRoutes);
+app.use("/categorias", categoriasRoutes);
 app.use("/entrenadores", entrenadoresRoutes);
 app.use("/equipos", equiposRoutes);
 app.use("/jugadores", jugadoresRoutes);

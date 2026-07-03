@@ -81,6 +81,10 @@ export function getLeagueCategory(league) {
 }
 
 export function getLeagueRound(league) {
+  if (league?.fecha_actual) {
+    return String(league.fecha_actual);
+  }
+
   const match = league?.descripcion?.match(/fecha\s+(\d+)/i);
   return match?.[1] || "";
 }

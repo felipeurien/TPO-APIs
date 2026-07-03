@@ -50,22 +50,41 @@ function MatchCarousel({ matches, teamByName, loading, error }) {
   return (
     <section className="match-carousel-panel" aria-label="Resultados recientes">
       <div className="match-carousel">
-        <div className={shouldScroll ? "match-carousel__track" : "match-carousel__track match-carousel__track--static"}>
+        <div
+          className={
+            shouldScroll
+              ? "match-carousel__track"
+              : "match-carousel__track match-carousel__track--static"
+          }
+        >
           {items.map((match, index) => (
-            <article className="match-carousel__item" key={`${match.id_partido}-${index}`}>
-              <strong className="match-carousel__status">Resultado final</strong>
+            <article
+              className="match-carousel__item"
+              key={`${match.id_partido}-${index}`}
+            >
+              <strong className="match-carousel__status">
+                Resultado final
+              </strong>
               <div className="match-carousel__teams">
                 <div>
-                  <TeamShield team={teamByName.get(match.equipo_local)} name={match.equipo_local} />
+                  <TeamShield
+                    team={teamByName.get(match.equipo_local)}
+                    name={match.equipo_local}
+                  />
                   <b title={match.equipo_local}>{match.equipo_local}</b>
                 </div>
                 <span className="match-carousel__score">{getScore(match)}</span>
                 <div>
-                  <TeamShield team={teamByName.get(match.equipo_visitante)} name={match.equipo_visitante} />
+                  <TeamShield
+                    team={teamByName.get(match.equipo_visitante)}
+                    name={match.equipo_visitante}
+                  />
                   <b title={match.equipo_visitante}>{match.equipo_visitante}</b>
                 </div>
               </div>
-              <small>{formatShortDate(match.fecha)} - {match.horario || "--:--"}</small>
+              <small>
+                {formatShortDate(match.fecha)} - {match.horario || "--:--"}
+              </small>
               <em>{match.lugar || "Sede a confirmar"}</em>
             </article>
           ))}
@@ -84,15 +103,26 @@ function MatchCalendar({ matches }) {
 
   const monthMatches = matches.filter((match) => {
     const parts = parseDateKey(match.fecha);
-    return parts?.year === calendarMonth.year && parts?.monthIndex === calendarMonth.monthIndex;
+    return (
+      parts?.year === calendarMonth.year &&
+      parts?.monthIndex === calendarMonth.monthIndex
+    );
   });
   const matchesByDate = monthMatches.reduce((accumulator, match) => {
     const key = getDateKey(match.fecha);
-    accumulator[key] = accumulator[key] ? [...accumulator[key], match] : [match];
+    accumulator[key] = accumulator[key]
+      ? [...accumulator[key], match]
+      : [match];
     return accumulator;
   }, {});
-  const daysInMonth = new Date(calendarMonth.year, calendarMonth.monthIndex + 1, 0).getDate();
-  const firstDayOffset = (new Date(calendarMonth.year, calendarMonth.monthIndex, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(
+    calendarMonth.year,
+    calendarMonth.monthIndex + 1,
+    0,
+  ).getDate();
+  const firstDayOffset =
+    (new Date(calendarMonth.year, calendarMonth.monthIndex, 1).getDay() + 6) %
+    7;
   const calendarCells = [
     ...Array.from({ length: firstDayOffset }, () => null),
     ...Array.from({ length: daysInMonth }, (_, index) => index + 1),
@@ -109,19 +139,32 @@ function MatchCalendar({ matches }) {
     <div className="match-calendar">
       <strong className="match-calendar__month">{monthLabel}</strong>
       <div className="match-calendar__weekdays" aria-hidden="true">
-        {["L", "M", "M", "J", "V", "S", "D"].map((day, index) => <span key={`${day}-${index}`}>{day}</span>)}
+        {["L", "M", "M", "J", "V", "S", "D"].map((day, index) => (
+          <span key={`${day}-${index}`}>{day}</span>
+        ))}
       </div>
       <div className="match-calendar__grid">
         {calendarCells.map((day, index) => {
-          if (!day) return <span className="match-calendar__empty" key={`empty-${index}`} />;
+          if (!day)
+            return (
+              <span className="match-calendar__empty" key={`empty-${index}`} />
+            );
 
           const key = `${calendarMonth.year}-${String(calendarMonth.monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
           const dayMatches = matchesByDate[key] || [];
 
           return (
             <span
-              className={dayMatches.length ? "match-calendar__day match-calendar__day--match" : "match-calendar__day"}
-              title={dayMatches.length ? `${dayMatches.length} partido${dayMatches.length > 1 ? "s" : ""}` : ""}
+              className={
+                dayMatches.length
+                  ? "match-calendar__day match-calendar__day--match"
+                  : "match-calendar__day"
+              }
+              title={
+                dayMatches.length
+                  ? `${dayMatches.length} partido${dayMatches.length > 1 ? "s" : ""}`
+                  : ""
+              }
               key={key}
             >
               {day}
@@ -134,7 +177,9 @@ function MatchCalendar({ matches }) {
         {matchDays.map(([date, dayMatches]) => (
           <div key={date}>
             <b>{formatShortDate(date)}</b>
-            <span>{dayMatches.length} partido{dayMatches.length > 1 ? "s" : ""}</span>
+            <span>
+              {dayMatches.length} partido{dayMatches.length > 1 ? "s" : ""}
+            </span>
           </div>
         ))}
       </div>
@@ -146,7 +191,7 @@ function HomeSidebar({ matches }) {
   const sidebarAds = [
     { image: "/ads/quilmes-logo.png", alt: "Quilmes cerveza argentina" },
     { image: "/ads/seven-up.png", alt: "7UP" },
-    { image: "/ads/pepsi.png", alt: "Pepsi" },
+    { image: "/ads/pepsi-small.jpg", alt: "Pepsi" },
   ];
 
   return (
@@ -156,24 +201,47 @@ function HomeSidebar({ matches }) {
       </section>
 
       <section className="panel calendar-panel">
-        <div className="panel-title"><h2>Calendario</h2></div>
+        <div className="panel-title">
+          <h2>Calendario</h2>
+        </div>
         <MatchCalendar matches={matches} />
       </section>
     </aside>
   );
 }
 
-export default function HomeView({ leagues, selectedLeagueId, setSelectedLeagueId, loading, errors, matches, standings, leagueDetail, teamByName, setView }) {
+export default function HomeView({
+  leagues,
+  selectedLeagueId,
+  setSelectedLeagueId,
+  loading,
+  errors,
+  matches,
+  standings,
+  leagueDetail,
+  teamByName,
+  setView,
+}) {
   const playedMatches = matches.filter(isPlayed);
-  const recentPlayedDates = [...new Set(playedMatches.map((match) => String(match.fecha).slice(0, 10)))]
+  const recentPlayedDates = [
+    ...new Set(playedMatches.map((match) => String(match.fecha).slice(0, 10))),
+  ]
     .sort()
     .slice(-2);
   const recentPlayedMatches = playedMatches
-    .filter((match) => recentPlayedDates.includes(String(match.fecha).slice(0, 10)))
-    .sort((a, b) => `${a.fecha} ${a.horario || ""}`.localeCompare(`${b.fecha} ${b.horario || ""}`))
+    .filter((match) =>
+      recentPlayedDates.includes(String(match.fecha).slice(0, 10)),
+    )
+    .sort((a, b) =>
+      `${a.fecha} ${a.horario || ""}`.localeCompare(
+        `${b.fecha} ${b.horario || ""}`,
+      ),
+    )
     .reverse();
   const latestResults = recentPlayedMatches.slice(0, 6);
-  const upcomingMatches = matches.filter((match) => !isPlayed(match)).slice(0, 6);
+  const upcomingMatches = matches
+    .filter((match) => !isPlayed(match))
+    .slice(0, 6);
   const currentRound = getLeagueRound(leagueDetail);
 
   return (
@@ -196,10 +264,20 @@ export default function HomeView({ leagues, selectedLeagueId, setSelectedLeagueI
                 selectedLeagueId={selectedLeagueId}
                 setSelectedLeagueId={setSelectedLeagueId}
               />
-              <span className="home-league-meta">Temporada {leagueDetail?.temporada_actual || "2026"}</span>
-              {currentRound && <span className="home-league-meta">Fecha {currentRound}</span>}
+              <span className="home-league-meta">
+                Temporada {leagueDetail?.temporada_actual || "2026"}
+              </span>
+              {currentRound && (
+                <span className="home-league-meta">Fecha {currentRound}</span>
+              )}
             </div>
-            <button type="button" className="text-link text-link--light" onClick={() => setView("posiciones")}>Ver tabla completa</button>
+            <button
+              type="button"
+              className="text-link text-link--light"
+              onClick={() => setView("posiciones")}
+            >
+              Ver tabla completa
+            </button>
           </div>
           <StatusMessage
             loading={loading.leagueDetail || loading.leagues}
@@ -207,25 +285,49 @@ export default function HomeView({ leagues, selectedLeagueId, setSelectedLeagueI
             empty={!loading.leagueDetail && standings.length === 0}
             emptyText="No hay clasificacion disponible."
           />
-          <StandingsTable standings={standings} teamByName={teamByName} />
+          <StandingsTable
+            standings={standings}
+            teamByName={teamByName}
+            compact
+          />
         </section>
 
         <div className="two-up">
           <section className="panel">
             <div className="panel-title">
               <h2>Ultimos resultados</h2>
-              <button type="button" className="text-link text-link--light" onClick={() => setView("fixture")}>Fixture</button>
+              <button
+                type="button"
+                className="text-link text-link--light"
+                onClick={() => setView("fixture")}
+              >
+                Fixture
+              </button>
             </div>
-            <table className="data-table">
+            <table className="data-table home-match-table home-match-table--results">
               <tbody>
                 {latestResults.map((match) => (
                   <tr key={match.id_partido}>
-                    <td>{formatShortDate(match.fecha)}</td>
-                    <td><TeamNameWithShield name={match.equipo_local} teamByName={teamByName} /></td>
-                    <td><strong>{match.resultado_local}</strong></td>
-                    <td>-</td>
-                    <td><strong>{match.resultado_visitante}</strong></td>
-                    <td><TeamNameWithShield name={match.equipo_visitante} teamByName={teamByName} /></td>
+                    <td data-label="Fecha">{formatShortDate(match.fecha)}</td>
+                    <td data-label="Local">
+                      <TeamNameWithShield
+                        name={match.equipo_local}
+                        teamByName={teamByName}
+                      />
+                    </td>
+                    <td data-label="Local">
+                      <strong>{match.resultado_local}</strong>
+                    </td>
+                    <td aria-hidden="true">-</td>
+                    <td data-label="Visitante">
+                      <strong>{match.resultado_visitante}</strong>
+                    </td>
+                    <td data-label="Visitante">
+                      <TeamNameWithShield
+                        name={match.equipo_visitante}
+                        teamByName={teamByName}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -234,17 +336,33 @@ export default function HomeView({ leagues, selectedLeagueId, setSelectedLeagueI
           <section className="panel">
             <div className="panel-title">
               <h2>Proximos partidos</h2>
-              <button type="button" className="text-link text-link--light" onClick={() => setView("fixture")}>Fixture</button>
+              <button
+                type="button"
+                className="text-link text-link--light"
+                onClick={() => setView("fixture")}
+              >
+                Fixture
+              </button>
             </div>
-            <table className="data-table">
+            <table className="data-table home-match-table home-match-table--upcoming">
               <tbody>
                 {upcomingMatches.map((match) => (
                   <tr key={match.id_partido}>
-                    <td>{formatShortDate(match.fecha)}</td>
-                    <td>{match.horario || "--:--"}</td>
-                    <td><TeamNameWithShield name={match.equipo_local} teamByName={teamByName} /></td>
-                    <td>vs.</td>
-                    <td><TeamNameWithShield name={match.equipo_visitante} teamByName={teamByName} /></td>
+                    <td data-label="Fecha">{formatShortDate(match.fecha)}</td>
+                    <td data-label="Hora">{match.horario || "--:--"}</td>
+                    <td data-label="Local">
+                      <TeamNameWithShield
+                        name={match.equipo_local}
+                        teamByName={teamByName}
+                      />
+                    </td>
+                    <td aria-hidden="true">vs.</td>
+                    <td data-label="Visitante">
+                      <TeamNameWithShield
+                        name={match.equipo_visitante}
+                        teamByName={teamByName}
+                      />
+                    </td>
                   </tr>
                 ))}
               </tbody>

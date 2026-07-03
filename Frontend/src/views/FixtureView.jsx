@@ -16,34 +16,40 @@ function groupMatchesByDate(matches) {
   const groups = new Map();
 
   matches.forEach((match) => {
+    const roundNumber = getRoundNumber(match);
     const dateKey = getDateKey(match.fecha);
-    const group = groups.get(dateKey) || [];
-    group.push(match);
-    groups.set(dateKey, group);
+    const groupKey = roundNumber ? `round-${roundNumber}` : `date-${dateKey}`;
+    const group = groups.get(groupKey) || {
+      key: groupKey,
+      roundNumber,
+      dates: new Set(),
+      matches: [],
+    };
+    group.dates.add(dateKey);
+    group.matches.push(match);
+    groups.set(groupKey, group);
   });
 
-  return [...groups.entries()].map(([date, dateMatches]) => ({
-    date,
-    matches: dateMatches.sort((a, b) => (a.horario || "").localeCompare(b.horario || "")),
+  return [...groups.values()].map((group) => ({
+    ...group,
+    dates: [...group.dates].sort((a, b) => a.localeCompare(b)),
+    matches: group.matches.sort((a, b) => `${a.fecha} ${a.horario || ""}`.localeCompare(`${b.fecha} ${b.horario || ""}`)),
   }));
 }
 
-function buildRoundLookup(matches) {
-  return [...new Set(matches.map((match) => getDateKey(match.fecha)))]
-    .sort((a, b) => a.localeCompare(b))
-    .reduce((rounds, date, index) => {
-      rounds[date] = index + 1;
-      return rounds;
-    }, {});
+function getRoundNumber(match) {
+  return match.numero_fecha ? Number(match.numero_fecha) : null;
 }
 
-function FixtureDateSection({ date, matches, statusLabel, roundNumber }) {
+function FixtureDateSection({ dates, matches, statusLabel, roundNumber }) {
+  const dateLabel = dates.map(formatDate).join(" / ");
+
   return (
     <section className="fixture-date-section">
       <header>
         <div>
-          <strong>Fecha {roundNumber}</strong>
-          <small>{formatDate(date)}</small>
+          <strong>{roundNumber ? `Fecha ${roundNumber}` : "Sin numero de fecha"}</strong>
+          <small>{dateLabel}</small>
         </div>
         <span>{statusLabel}</span>
       </header>
@@ -76,11 +82,10 @@ function FixtureDateSection({ date, matches, statusLabel, roundNumber }) {
 }
 
 export default function FixtureView({ leagues, selectedLeagueId, setSelectedLeagueId, matches, loading, errors }) {
-  const roundLookup = buildRoundLookup(matches);
   const playedGroups = groupMatchesByDate(matches.filter(isPlayed))
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => (b.roundNumber || 0) - (a.roundNumber || 0) || b.dates[0].localeCompare(a.dates[0]));
   const scheduledGroups = groupMatchesByDate(matches.filter((match) => !isPlayed(match)))
-    .sort((a, b) => a.date.localeCompare(b.date));
+    .sort((a, b) => (a.roundNumber || 9999) - (b.roundNumber || 9999) || a.dates[0].localeCompare(b.dates[0]));
 
   return (
     <ViewLayout title="Fixture">
@@ -109,19 +114,19 @@ export default function FixtureView({ leagues, selectedLeagueId, setSelectedLeag
         <div className="fixture-date-list">
           {playedGroups.map((group) => (
             <FixtureDateSection
-              key={`played-${group.date}`}
-              date={group.date}
+              key={`played-${group.key}`}
+              dates={group.dates}
               matches={group.matches}
-              roundNumber={roundLookup[group.date]}
+              roundNumber={group.roundNumber}
               statusLabel="Jugados"
             />
           ))}
           {scheduledGroups.map((group) => (
             <FixtureDateSection
-              key={`scheduled-${group.date}`}
-              date={group.date}
+              key={`scheduled-${group.key}`}
+              dates={group.dates}
               matches={group.matches}
-              roundNumber={roundLookup[group.date]}
+              roundNumber={group.roundNumber}
               statusLabel="Programados"
             />
           ))}

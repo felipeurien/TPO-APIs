@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { createAdmin, getAdmins } from "./api/admins";
 import { loginAdmin } from "./api/auth";
+import { createCategory, deleteCategory, updateCategory } from "./api/categories";
 import { createCoach, deleteCoach, updateCoach } from "./api/coaches";
 import { createLeague, deleteLeague, updateLeague } from "./api/leagues";
 import { createMatch, deleteMatch, updateMatch, updateMatchResult } from "./api/matches";
@@ -12,6 +13,7 @@ const ADMIN_TABS = [
   { id: "equipos", label: "Equipos" },
   { id: "jugadores", label: "Jugadores" },
   { id: "ligas", label: "Ligas" },
+  { id: "categorias", label: "Categorias" },
   { id: "entrenadores", label: "Entrenadores" },
   { id: "admins", label: "Admins" },
 ];
@@ -28,12 +30,14 @@ const EMPTY_FORMS = {
     activo: true,
   },
   jugadores: { nombre: "", apellido: "", categoria: "", id_equipo: "" },
+  categorias: { nombre: "", descripcion: "", activa: true },
   entrenadores: { nombre: "", apellido: "" },
   partidos: {
     id_equipo_local: "",
     id_equipo_visitante: "",
     id_liga: "",
     fecha: "",
+    numero_fecha: "",
     horario: "",
     lugar: "",
     resultado_local: "",
@@ -44,11 +48,18 @@ const EMPTY_FORMS = {
   resultado: { resultado_local: "", resultado_visitante: "" },
 };
 
+const EMPTY_FILTERS = {
+  categoria: "",
+  id_equipo: "",
+  estado: "",
+  fase: "",
+};
+
 function cleanPayload(data) {
   return Object.fromEntries(
     Object.entries(data).map(([key, value]) => {
       if (value === "") return [key, null];
-      if (key.startsWith("id_") || key.startsWith("resultado_")) return [key, Number(value)];
+      if (key.startsWith("id_") || key.startsWith("resultado_") || key === "numero_fecha") return [key, Number(value)];
       return [key, value];
     }),
   );
@@ -60,6 +71,54 @@ function personName(person) {
 
 function matchLabel(match) {
   return `${match.equipo_local || match.id_equipo_local} vs. ${match.equipo_visitante || match.id_equipo_visitante}`;
+}
+
+function uniqueOptions(values) {
+  return [...new Set(values.filter(Boolean))]
+    .sort((a, b) => String(a).localeCompare(String(b), "es"))
+    .map((value) => ({ value, label: value }));
+}
+
+function getRowTeamIds(tab, row) {
+  if (tab === "partidos") return [row.id_equipo_local, row.id_equipo_visitante].filter(Boolean).map(Number);
+  if (tab === "equipos") return [row.id_equipo].filter(Boolean).map(Number);
+  if (tab === "jugadores") return [row.id_equipo].filter(Boolean).map(Number);
+  return [];
+}
+
+function getRowCategories(tab, row, teamById) {
+  const ownCategory = row.categoria ? [row.categoria] : [];
+  const teamCategories = getRowTeamIds(tab, row)
+    .map((teamId) => teamById.get(Number(teamId))?.categoria)
+    .filter(Boolean);
+
+  return [...ownCategory, ...teamCategories];
+}
+
+function matchesAdminFilters(tab, row, filters, teamById) {
+  const teamIds = getRowTeamIds(tab, row);
+  const categories = getRowCategories(tab, row, teamById);
+
+  if (filters.id_equipo && !teamIds.includes(Number(filters.id_equipo))) return false;
+  if (filters.categoria && !categories.includes(filters.categoria)) return false;
+  if (tab === "partidos" && filters.estado && row.estado !== filters.estado) return false;
+  if (tab === "partidos" && filters.fase && (row.fase || "regular") !== filters.fase) return false;
+
+  return true;
+}
+
+function getAdminRowId(tab, row) {
+  const idsByTab = {
+    partidos: row.id_partido,
+    equipos: row.id_equipo,
+    jugadores: row.id_jugador,
+    ligas: row.id_liga,
+    entrenadores: row.id_entrenador,
+    categorias: row.id_categoria,
+    admins: row.id_administrador,
+  };
+
+  return idsByTab[tab];
 }
 
 function AdminLogin({ onLogin }) {
@@ -139,9 +198,12 @@ function SelectInput({ value, onChange, options, placeholder, required = false }
   );
 }
 
-function AdminForm({ tab, form, setForm, editingId, onSubmit, onCancel, leagues, teams, coaches }) {
+function AdminForm({ tab, form, setForm, editingId, onSubmit, onCancel, leagues, teams, coaches, categories }) {
   const leagueOptions = leagues.map((league) => ({ value: league.id_liga, label: league.nombre }));
   const teamOptions = teams.map((team) => ({ value: team.id_equipo, label: team.nombre }));
+  const categoryOptions = categories
+    .filter((category) => category.activa)
+    .map((category) => ({ value: category.nombre, label: category.nombre }));
   const matchTeamOptions = teams
     .filter((team) => !form.id_liga || Number(team.id_liga) === Number(form.id_liga))
     .map((team) => ({ value: team.id_equipo, label: team.nombre }));
@@ -162,7 +224,7 @@ function AdminForm({ tab, form, setForm, editingId, onSubmit, onCancel, leagues,
       {tab === "equipos" && (
         <>
           <AdminField label="Nombre"><TextInput required value={form.nombre} onChange={(value) => update("nombre", value)} /></AdminField>
-          <AdminField label="Categoria"><TextInput required value={form.categoria} onChange={(value) => update("categoria", value)} /></AdminField>
+          <AdminField label="Categoria"><SelectInput required value={form.categoria} onChange={(value) => update("categoria", value)} options={categoryOptions} placeholder="Elegir categoria" /></AdminField>
           <AdminField label="Liga"><SelectInput required value={form.id_liga} onChange={(value) => update("id_liga", value)} options={leagueOptions} placeholder="Elegir liga" /></AdminField>
           <AdminField label="Entrenador"><SelectInput value={form.id_entrenador} onChange={(value) => update("id_entrenador", value)} options={coachOptions} placeholder="Sin entrenador" /></AdminField>
           <AdminField label="Descripcion"><TextInput value={form.descripcion} onChange={(value) => update("descripcion", value)} /></AdminField>
@@ -175,8 +237,16 @@ function AdminForm({ tab, form, setForm, editingId, onSubmit, onCancel, leagues,
         <>
           <AdminField label="Nombre"><TextInput required value={form.nombre} onChange={(value) => update("nombre", value)} /></AdminField>
           <AdminField label="Apellido"><TextInput required value={form.apellido} onChange={(value) => update("apellido", value)} /></AdminField>
-          <AdminField label="Categoria"><TextInput required value={form.categoria} onChange={(value) => update("categoria", value)} /></AdminField>
+          <AdminField label="Categoria"><SelectInput required value={form.categoria} onChange={(value) => update("categoria", value)} options={categoryOptions} placeholder="Elegir categoria" /></AdminField>
           <AdminField label="Equipo"><SelectInput required value={form.id_equipo} onChange={(value) => update("id_equipo", value)} options={teamOptions} placeholder="Elegir equipo" /></AdminField>
+        </>
+      )}
+
+      {tab === "categorias" && (
+        <>
+          <AdminField label="Nombre"><TextInput required value={form.nombre} onChange={(value) => update("nombre", value)} /></AdminField>
+          <AdminField label="Descripcion"><TextInput value={form.descripcion} onChange={(value) => update("descripcion", value)} /></AdminField>
+          <label className="admin-check"><input type="checkbox" checked={Boolean(form.activa)} onChange={(event) => update("activa", event.target.checked)} /> Activa</label>
         </>
       )}
 
@@ -193,6 +263,7 @@ function AdminForm({ tab, form, setForm, editingId, onSubmit, onCancel, leagues,
           <AdminField label="Local"><SelectInput required value={form.id_equipo_local} onChange={(value) => update("id_equipo_local", value)} options={matchTeamOptions} placeholder="Equipo local" /></AdminField>
           <AdminField label="Visitante"><SelectInput required value={form.id_equipo_visitante} onChange={(value) => update("id_equipo_visitante", value)} options={matchTeamOptions} placeholder="Equipo visitante" /></AdminField>
           <AdminField label="Fecha"><TextInput required type="date" value={form.fecha} onChange={(value) => update("fecha", value)} /></AdminField>
+          <AdminField label="Nro. fecha"><TextInput type="number" value={form.numero_fecha} onChange={(value) => update("numero_fecha", value)} /></AdminField>
           <AdminField label="Horario"><TextInput required type="time" value={form.horario} onChange={(value) => update("horario", value)} /></AdminField>
           <AdminField label="Lugar"><TextInput required value={form.lugar} onChange={(value) => update("lugar", value)} /></AdminField>
           <AdminField label="Estado">
@@ -252,6 +323,64 @@ function ResultForm({ match, token, onDone }) {
   );
 }
 
+function AdminFilters({ tab, filters, setFilters, rows, teams, teamById }) {
+  if (tab === "admins" || tab === "ligas" || tab === "entrenadores" || tab === "categorias") return null;
+
+  const categories = uniqueOptions(rows.flatMap((row) => getRowCategories(tab, row, teamById)));
+  const teamIdsInRows = new Set(rows.flatMap((row) => getRowTeamIds(tab, row)));
+  const teamOptions = teams
+    .filter((team) => teamIdsInRows.has(Number(team.id_equipo)))
+    .map((team) => ({ value: team.id_equipo, label: team.nombre }))
+    .sort((a, b) => a.label.localeCompare(b.label, "es"));
+  const update = (key, value) => setFilters((current) => ({ ...current, [key]: value }));
+  const hasFilters = Object.values(filters).some(Boolean);
+
+  return (
+    <div className="admin-filters">
+      <label>
+        Categoria
+        <select value={filters.categoria} onChange={(event) => update("categoria", event.target.value)}>
+          <option value="">Todas</option>
+          {categories.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select>
+      </label>
+      <label>
+        Equipo
+        <select value={filters.id_equipo} onChange={(event) => update("id_equipo", event.target.value)}>
+          <option value="">Todos</option>
+          {teamOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+        </select>
+      </label>
+      {tab === "partidos" && (
+        <>
+          <label>
+            Estado
+            <select value={filters.estado} onChange={(event) => update("estado", event.target.value)}>
+              <option value="">Todos</option>
+              <option value="programado">programado</option>
+              <option value="jugado">jugado</option>
+              <option value="suspendido">suspendido</option>
+            </select>
+          </label>
+          <label>
+            Fase
+            <select value={filters.fase} onChange={(event) => update("fase", event.target.value)}>
+              <option value="">Todas</option>
+              <option value="regular">regular</option>
+              <option value="playoff">playoff</option>
+            </select>
+          </label>
+        </>
+      )}
+      {hasFilters && (
+        <button type="button" className="admin-button admin-button--muted" onClick={() => setFilters(EMPTY_FILTERS)}>
+          Limpiar
+        </button>
+      )}
+    </div>
+  );
+}
+
 function AdminTable({ tab, rows, onEdit, onDelete, token, refreshData }) {
   if (!rows.length) return <p className="state">No hay registros.</p>;
 
@@ -260,7 +389,7 @@ function AdminTable({ tab, rows, onEdit, onDelete, token, refreshData }) {
       <table className="data-table admin-table">
         <tbody>
           {rows.map((row) => {
-            const id = row.id_liga || row.id_equipo || row.id_jugador || row.id_entrenador || row.id_partido || row.id_administrador;
+            const id = getAdminRowId(tab, row);
             return (
               <tr key={`${tab}-${id}`}>
                 <td>
@@ -272,6 +401,8 @@ function AdminTable({ tab, rows, onEdit, onDelete, token, refreshData }) {
                     {row.categoria ? ` - ${row.categoria}` : ""}
                     {row.temporada_actual ? ` - Temp. ${row.temporada_actual}` : ""}
                     {row.estado ? ` - ${row.estado}` : ""}
+                    {row.fase && row.fase !== "regular" ? ` - ${row.fase}` : ""}
+                    {row.ronda ? ` - ${row.ronda}` : ""}
                   </span>
                 </td>
                 {tab === "partidos" && (
@@ -298,6 +429,7 @@ function prepareEditForm(tab, row) {
       ...EMPTY_FORMS.partidos,
       ...row,
       fecha: row.fecha ? String(row.fecha).slice(0, 10) : "",
+      numero_fecha: row.numero_fecha ?? "",
       horario: row.horario ? String(row.horario).slice(0, 5) : "",
       resultado_local: row.resultado_local ?? "",
       resultado_visitante: row.resultado_visitante ?? "",
@@ -307,17 +439,19 @@ function prepareEditForm(tab, row) {
   return { ...EMPTY_FORMS[tab], ...row };
 }
 
-export default function AdminPanel({ session, onLogin, onLogout, leagues, teams, players, coaches, matches, refreshData }) {
+export default function AdminPanel({ session, onLogin, onLogout, leagues, teams, players, coaches, categories, matches, refreshData }) {
   const [tab, setTab] = useState("partidos");
   const [form, setForm] = useState(EMPTY_FORMS.partidos);
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState("");
   const [admins, setAdmins] = useState([]);
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
 
   useEffect(() => {
     setForm(EMPTY_FORMS[tab]);
     setEditingId(null);
     setMessage("");
+    setFilters(EMPTY_FILTERS);
   }, [tab]);
 
   useEffect(() => {
@@ -329,10 +463,21 @@ export default function AdminPanel({ session, onLogin, onLogout, leagues, teams,
     ligas: leagues,
     equipos: teams,
     jugadores: players,
+    categorias: categories,
     entrenadores: coaches,
     partidos: matches,
     admins,
-  }), [admins, coaches, leagues, matches, players, teams]);
+  }), [admins, categories, coaches, leagues, matches, players, teams]);
+
+  const teamById = useMemo(
+    () => new Map(teams.map((team) => [Number(team.id_equipo), team])),
+    [teams],
+  );
+
+  const filteredRows = useMemo(
+    () => rows[tab].filter((row) => matchesAdminFilters(tab, row, filters, teamById)),
+    [filters, rows, tab, teamById],
+  );
 
   if (!session?.token) {
     return <AdminLogin onLogin={onLogin} />;
@@ -353,6 +498,8 @@ export default function AdminPanel({ session, onLogin, onLogout, leagues, teams,
         editingId ? await updateTeam(editingId, payload, token) : await createTeam(payload, token);
       } else if (tab === "jugadores") {
         editingId ? await updatePlayer(editingId, payload, token) : await createPlayer(payload, token);
+      } else if (tab === "categorias") {
+        editingId ? await updateCategory(editingId, payload, token) : await createCategory(payload, token);
       } else if (tab === "entrenadores") {
         editingId ? await updateCoach(editingId, payload, token) : await createCoach(payload, token);
       } else if (tab === "partidos") {
@@ -372,20 +519,27 @@ export default function AdminPanel({ session, onLogin, onLogout, leagues, teams,
   };
 
   const edit = (row) => {
-    const id = row.id_liga || row.id_equipo || row.id_jugador || row.id_entrenador || row.id_partido;
+    const id = getAdminRowId(tab, row);
     setEditingId(id);
     setForm(prepareEditForm(tab, row));
     setMessage("");
   };
 
   const remove = async (row) => {
-    const id = row.id_liga || row.id_equipo || row.id_jugador || row.id_entrenador || row.id_partido;
+    const id = getAdminRowId(tab, row);
+    const label = row.nombre || row.username || matchLabel(row) || `ID #${id}`;
+
+    if (!window.confirm(`¿Seguro que querés borrar "${label}"?`)) {
+      return;
+    }
+
     setMessage("");
 
     try {
       if (tab === "ligas") await deleteLeague(id, token);
       if (tab === "equipos") await deleteTeam(id, token);
       if (tab === "jugadores") await deletePlayer(id, token);
+      if (tab === "categorias") await deleteCategory(id, token);
       if (tab === "entrenadores") await deleteCoach(id, token);
       if (tab === "partidos") await deleteMatch(id, token);
       setMessage("Registro eliminado.");
@@ -429,15 +583,24 @@ export default function AdminPanel({ session, onLogin, onLogout, leagues, teams,
             leagues={leagues}
             teams={teams}
             coaches={coaches}
+            categories={categories}
           />
           {message && <p className={message.includes("Error") || message.includes("No se") || message.includes("oblig") ? "state state--error" : "state"}>{message}</p>}
         </section>
 
         <section className="panel">
-          <div className="panel-title"><h2>Registros</h2></div>
+          <div className="panel-title"><h2>Registros</h2><span>{filteredRows.length}/{rows[tab].length}</span></div>
+          <AdminFilters
+            tab={tab}
+            filters={filters}
+            setFilters={setFilters}
+            rows={rows[tab]}
+            teams={teams}
+            teamById={teamById}
+          />
           <AdminTable
             tab={tab}
-            rows={rows[tab]}
+            rows={filteredRows}
             onEdit={edit}
             onDelete={remove}
             token={token}

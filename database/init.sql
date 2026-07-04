@@ -1,5 +1,7 @@
--- Backup liga_basket
--- Created 2026-07-03T19:28:49.364Z
+-- Export liga_basket
+-- Created 2026-07-04T16:08:10.237Z
+CREATE DATABASE IF NOT EXISTS `liga_basket`;
+USE `liga_basket`;
 SET FOREIGN_KEY_CHECKS=0;
 
 DROP TABLE IF EXISTS `administradores`;
@@ -29,7 +31,7 @@ CREATE TABLE `categorias` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_categoria`),
   UNIQUE KEY `nombre` (`nombre`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `created_at`, `updated_at`) VALUES (1, 'Primera', NULL, 1, '2026-07-03 19:05:47', '2026-07-03 19:05:47');
 INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `created_at`, `updated_at`) VALUES (2, 'U21', NULL, 1, '2026-07-03 19:05:47', '2026-07-03 19:05:47');
@@ -37,7 +39,7 @@ INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `cr
 INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `created_at`, `updated_at`) VALUES (4, 'U17', NULL, 1, '2026-07-03 19:05:47', '2026-07-03 19:05:47');
 INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `created_at`, `updated_at`) VALUES (5, 'U15', NULL, 1, '2026-07-03 19:05:47', '2026-07-03 19:05:47');
 INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `created_at`, `updated_at`) VALUES (6, 'U13', NULL, 1, '2026-07-03 19:05:47', '2026-07-03 19:05:47');
-INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `created_at`, `updated_at`) VALUES (7, 'Senior', NULL, 1, '2026-07-03 19:05:47', '2026-07-03 19:05:47');
+INSERT INTO `categorias` (`id_categoria`, `nombre`, `descripcion`, `activa`, `created_at`, `updated_at`) VALUES (7, 'Senior', 'Categoria Senior para torneo reducido de prueba.', 1, '2026-07-03 19:05:47', '2026-07-03 22:29:22');
 
 DROP TABLE IF EXISTS `entrenadores`;
 CREATE TABLE `entrenadores` (
@@ -45,7 +47,7 @@ CREATE TABLE `entrenadores` (
   `nombre` varchar(50) NOT NULL,
   `apellido` varchar(50) NOT NULL,
   PRIMARY KEY (`id_entrenador`)
-) ENGINE=InnoDB AUTO_INCREMENT=191 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=197 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (5, 'Juan', 'Bilardo');
 INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (9, 'Juan', 'Bilardo');
@@ -109,6 +111,12 @@ INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (186, 
 INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (187, 'DT QUI', 'Mini U13');
 INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (188, 'DT INS', 'Mini U13');
 INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (189, 'DT REG', 'Mini U13');
+INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (191, 'DT BAN', 'Senior');
+INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (192, 'DT FER', 'Senior');
+INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (193, 'DT OBR', 'Senior');
+INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (194, 'DT ATE', 'Senior');
+INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (195, 'DT QUI', 'Senior');
+INSERT INTO `entrenadores` (`id_entrenador`, `nombre`, `apellido`) VALUES (196, 'DT BOC', 'Senior');
 
 DROP TABLE IF EXISTS `equipos`;
 CREATE TABLE `equipos` (
@@ -126,7 +134,7 @@ CREATE TABLE `equipos` (
   KEY `fk_equipos_entrenador` (`id_entrenador`),
   CONSTRAINT `fk_equipos_entrenador` FOREIGN KEY (`id_entrenador`) REFERENCES `entrenadores` (`id_entrenador`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_equipos_liga` FOREIGN KEY (`id_liga`) REFERENCES `ligas` (`id_liga`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=187 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=193 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (126, 'Banfield Primera', 'Primera', 130, 'Easter egg invitado: Banfield abre la lista de equipos históricos.', 'https://commons.wikimedia.org/wiki/Special:FilePath/CA%20Banfield%20(2014).svg', 1, 14);
 INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (127, 'Atenas de Córdoba Primera', 'Primera', 131, 'Club histórico de Córdoba y referencia del básquet nacional.', 'https://en.wikipedia.org/wiki/Special:FilePath/Atenas%20cordoba%20logo.png', 1, 14);
@@ -188,6 +196,12 @@ INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `des
 INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (183, 'Quimsa U13', 'U13', 187, 'Potencia santiagueña de gran crecimiento competitivo.', 'https://en.wikipedia.org/wiki/Special:FilePath/Asociaci%C3%B3n%20Atl%C3%A9tica%20Quimsa%20logo.svg', 1, 19);
 INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (184, 'Instituto de Córdoba U13', 'U13', 188, 'Representante cordobés con presente fuerte y tradición formativa.', 'https://en.wikipedia.org/wiki/Special:FilePath/Instituto%20acc%20cordoba%20logo.svg', 1, 19);
 INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (185, 'Regatas Corrientes U13', 'U13', 189, 'Equipo correntino reconocido por su historia nacional e internacional.', 'https://en.wikipedia.org/wiki/Special:FilePath/Crc%20regatas.png', 1, 19);
+INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (187, 'Banfield Senior', 'Senior', 191, 'Equipo Senior de BAN.', '/escudos/banfield.svg', 1, 21);
+INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (188, 'Ferro Carril Oeste Senior', 'Senior', 192, 'Equipo Senior de FER.', 'https://en.wikipedia.org/wiki/Special:FilePath/Ferro%20Carril%20Oeste%20logo.svg', 1, 21);
+INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (189, 'Obras Sanitarias Senior', 'Senior', 193, 'Equipo Senior de OBR.', 'https://en.wikipedia.org/wiki/Special:FilePath/Club%20obras%20logo14.png', 1, 21);
+INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (190, 'Atenas de Cordoba Senior', 'Senior', 194, 'Equipo Senior de ATE.', 'https://en.wikipedia.org/wiki/Special:FilePath/Atenas%20cordoba%20logo.png', 1, 21);
+INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (191, 'Quimsa Senior', 'Senior', 195, 'Equipo Senior de QUI.', 'https://en.wikipedia.org/wiki/Special:FilePath/Asociaci%C3%B3n%20Atl%C3%A9tica%20Quimsa%20logo.svg', 1, 21);
+INSERT INTO `equipos` (`id_equipo`, `nombre`, `categoria`, `id_entrenador`, `descripcion`, `escudo_url`, `activo`, `id_liga`) VALUES (192, 'Boca Juniors Senior', 'Senior', 196, 'Equipo Senior de BOC.', 'https://en.wikipedia.org/wiki/Special:FilePath/Boca%20Juniors%20logo18.svg', 1, 21);
 
 DROP TABLE IF EXISTS `jugadores`;
 CREATE TABLE `jugadores` (
@@ -199,7 +213,7 @@ CREATE TABLE `jugadores` (
   PRIMARY KEY (`id_jugador`),
   KEY `fk_jugadores_equipo` (`id_equipo`),
   CONSTRAINT `fk_jugadores_equipo` FOREIGN KEY (`id_equipo`) REFERENCES `equipos` (`id_equipo`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2174 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2236 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (1454, 'Mateo', 'Gómez', 'Primera', 126);
 INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (1455, 'Santiago', 'Rodríguez', 'Primera', 126);
@@ -921,6 +935,68 @@ INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_eq
 INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2171, 'Benjamín', 'Sánchez', 'U13', 185);
 INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2172, 'Julián', 'Romero', 'U13', 185);
 INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2173, 'Tomás', 'Torres', 'U13', 185);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2174, 'Carlos', 'Gomez', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2175, 'Hector', 'Lopez', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2176, 'Daniel', 'Rodriguez', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2177, 'Miguel', 'Romero', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2178, 'Sergio', 'Molina', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2179, 'Raul', 'Alvarez', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2180, 'Oscar', 'Gomez', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2181, 'Pablo', 'Lopez', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2182, 'Jorge', 'Rodriguez', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2183, 'Ruben', 'Romero', 'Senior', 187);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2184, 'Hector', 'Perez', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2185, 'Daniel', 'Fernandez', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2186, 'Miguel', 'Sanchez', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2187, 'Sergio', 'Torres', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2188, 'Raul', 'Castro', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2189, 'Oscar', 'Diaz', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2190, 'Pablo', 'Perez', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2191, 'Jorge', 'Fernandez', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2192, 'Ruben', 'Sanchez', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2193, 'Marcelo', 'Torres', 'Senior', 188);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2194, 'Daniel', 'Lopez', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2195, 'Miguel', 'Rodriguez', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2196, 'Sergio', 'Romero', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2197, 'Raul', 'Molina', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2198, 'Oscar', 'Alvarez', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2199, 'Pablo', 'Gomez', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2200, 'Jorge', 'Lopez', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2201, 'Ruben', 'Rodriguez', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2202, 'Marcelo', 'Romero', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2203, 'Gustavo', 'Molina', 'Senior', 189);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2204, 'Miguel', 'Fernandez', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2205, 'Sergio', 'Sanchez', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2206, 'Raul', 'Torres', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2207, 'Oscar', 'Castro', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2208, 'Pablo', 'Diaz', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2209, 'Jorge', 'Perez', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2210, 'Ruben', 'Fernandez', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2211, 'Marcelo', 'Sanchez', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2212, 'Gustavo', 'Torres', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2213, 'Carlos', 'Castro', 'Senior', 190);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2214, 'Sergio', 'Rodriguez', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2215, 'Raul', 'Romero', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2216, 'Oscar', 'Molina', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2217, 'Pablo', 'Alvarez', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2218, 'Jorge', 'Gomez', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2219, 'Ruben', 'Lopez', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2220, 'Marcelo', 'Rodriguez', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2221, 'Gustavo', 'Romero', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2222, 'Carlos', 'Molina', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2223, 'Hector', 'Alvarez', 'Senior', 191);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2224, 'Raul', 'Sanchez', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2225, 'Oscar', 'Torres', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2226, 'Pablo', 'Castro', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2227, 'Jorge', 'Diaz', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2228, 'Ruben', 'Perez', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2229, 'Marcelo', 'Fernandez', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2230, 'Gustavo', 'Sanchez', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2231, 'Carlos', 'Torres', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2232, 'Hector', 'Castro', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2233, 'Daniel', 'Diaz', 'Senior', 192);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2234, 'Felipe', 'Test', 'U21', 136);
+INSERT INTO `jugadores` (`id_jugador`, `nombre`, `apellido`, `categoria`, `id_equipo`) VALUES (2235, 'Test', 'Apellido', 'Senior', 190);
 
 DROP TABLE IF EXISTS `ligas`;
 CREATE TABLE `ligas` (
@@ -930,7 +1006,7 @@ CREATE TABLE `ligas` (
   `descripcion` varchar(255) DEFAULT NULL,
   `activa` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id_liga`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `activa`) VALUES (14, 'Liga Metropolitana de Basket - Primera', '2026', 'Torneo ida y vuelta de categoria Primera. Actualmente transitando la fecha 7.', 1);
 INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `activa`) VALUES (15, 'Liga Metropolitana de Basket - U21', '2026', 'Torneo ida y vuelta de categoria U21. Actualmente transitando la fecha 7.', 1);
@@ -938,7 +1014,7 @@ INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `ac
 INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `activa`) VALUES (17, 'Liga Metropolitana de Basket - U17', '2026', 'Torneo ida y vuelta de categoria U17. Actualmente transitando la fecha 7.', 1);
 INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `activa`) VALUES (18, 'Liga Metropolitana de Basket - U15', '2026', 'Torneo ida y vuelta de categoria U15. Actualmente transitando la fecha 7.', 1);
 INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `activa`) VALUES (19, 'Liga Metropolitana de Basket - U13', '2026', 'Torneo ida y vuelta de categoria U13. Actualmente transitando la fecha 7.', 1);
-INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `activa`) VALUES (20, 'Liga Test - M60', '2026', 'liga para testear cositas', 1);
+INSERT INTO `ligas` (`id_liga`, `nombre`, `temporada_actual`, `descripcion`, `activa`) VALUES (21, 'Liga Metropolitana de Basket - Senior', '2026', '[SENIOR_6_SEED] Torneo ida y vuelta de categoria Senior. Actualmente transitando la fecha 10.', 1);
 
 DROP TABLE IF EXISTS `partidos`;
 CREATE TABLE `partidos` (
@@ -967,7 +1043,7 @@ CREATE TABLE `partidos` (
   CONSTRAINT `fk_partidos_equipo_visitante` FOREIGN KEY (`id_equipo_visitante`) REFERENCES `equipos` (`id_equipo`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_partidos_liga` FOREIGN KEY (`id_liga`) REFERENCES `ligas` (`id_liga`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `chk_resultados_no_negativos` CHECK ((((`resultado_local` is null) or (`resultado_local` >= 0)) and ((`resultado_visitante` is null) or (`resultado_visitante` >= 0))))
-) ENGINE=InnoDB AUTO_INCREMENT=1640 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1671 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1089, 126, 135, '2026-03-01 03:00:00', '18:00:00', 'Estadio BAN', 58, 58, 'jugado', 14, 'regular', NULL, NULL, NULL, 1);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1090, 127, 134, '2026-03-01 03:00:00', '19:30:00', 'Estadio ATE', 63, 60, 'jugado', 14, 'regular', NULL, NULL, NULL, 1);
@@ -1452,7 +1528,7 @@ INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, 
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1569, 176, 179, '2026-04-12 03:00:00', '18:00:00', 'Estadio BAN', 80, 69, 'jugado', 19, 'regular', NULL, NULL, NULL, 7);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1570, 180, 178, '2026-04-12 03:00:00', '19:30:00', 'Estadio OBR', 85, 75, 'jugado', 19, 'regular', NULL, NULL, NULL, 7);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1571, 181, 177, '2026-04-12 03:00:00', '20:00:00', 'Estadio BOC', 90, 81, 'jugado', 19, 'regular', NULL, NULL, NULL, 7);
-INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1572, 182, 185, '2026-04-12 03:00:00', '20:30:00', 'Estadio CASLA', 60, 87, 'jugado', 19, 'regular', NULL, NULL, NULL, 7);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1572, 182, 185, '2026-04-12 03:00:00', '20:30:00', 'Estadio CASLA', 90, 87, 'jugado', 19, 'regular', NULL, NULL, NULL, 7);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1573, 183, 184, '2026-04-12 03:00:00', '21:30:00', 'Estadio QUI', 65, 59, 'jugado', 19, 'regular', NULL, NULL, NULL, 7);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1574, 178, 176, '2026-04-19 03:00:00', '18:00:00', 'Estadio BOC', NULL, NULL, 'programado', 19, 'regular', NULL, NULL, NULL, 8);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1575, 177, 179, '2026-04-19 03:00:00', '19:30:00', 'Estadio CASLA', NULL, NULL, 'programado', 19, 'regular', NULL, NULL, NULL, 8);
@@ -1515,8 +1591,39 @@ INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, 
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1634, 135, 131, '2026-07-05 03:00:00', '21:30:00', 'Sede Regatas Corrientes Primera', NULL, NULL, 'programado', 14, 'playoff', 'semifinal', 2, 6, NULL);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1635, 141, 142, '2026-07-05 03:00:00', '20:00:00', 'Sede Boca Juniors U21', NULL, NULL, 'programado', 15, 'playoff', 'semifinal', 1, 7, NULL);
 INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1636, 140, 136, '2026-07-05 03:00:00', '21:30:00', 'Sede Obras Sanitarias U21', NULL, NULL, 'programado', 15, 'playoff', 'semifinal', 2, 8, NULL);
-INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1638, 164, 162, '2026-07-05 03:00:00', '20:00:00', 'Sede Instituto de Córdoba U17', NULL, NULL, 'programado', 17, 'playoff', 'semifinal', 1, 10, NULL);
-INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1639, 165, 157, '2026-07-05 03:00:00', '21:30:00', 'Sede Regatas Corrientes U17', NULL, NULL, 'programado', 17, 'playoff', 'semifinal', 2, 11, NULL);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1638, 164, 162, '2026-07-05 03:00:00', '20:00:00', 'Sede Instituto de Córdoba U17', 78, 70, 'jugado', 17, 'playoff', 'semifinal', 1, 10, NULL);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1639, 165, 157, '2026-07-05 03:00:00', '21:30:00', 'Sede Regatas Corrientes U17', 54, 65, 'jugado', 17, 'playoff', 'semifinal', 2, 11, NULL);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1640, 187, 192, '2026-03-07 03:00:00', '18:00:00', 'Estadio BAN', 81, 74, 'jugado', 21, 'regular', NULL, NULL, NULL, 1);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1641, 188, 191, '2026-03-07 03:00:00', '19:30:00', 'Estadio FER', 64, 58, 'jugado', 21, 'regular', NULL, NULL, NULL, 1);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1642, 189, 190, '2026-03-07 03:00:00', '21:00:00', 'Estadio OBR', 71, 64, 'jugado', 21, 'regular', NULL, NULL, NULL, 1);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1643, 191, 187, '2026-03-14 03:00:00', '18:00:00', 'Estadio QUI', 69, 74, 'jugado', 21, 'regular', NULL, NULL, NULL, 2);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1644, 190, 192, '2026-03-14 03:00:00', '19:30:00', 'Estadio ATE', 74, 64, 'jugado', 21, 'regular', NULL, NULL, NULL, 2);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1645, 189, 188, '2026-03-14 03:00:00', '21:00:00', 'Estadio OBR', 79, 67, 'jugado', 21, 'regular', NULL, NULL, NULL, 2);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1646, 187, 190, '2026-03-21 03:00:00', '18:00:00', 'Estadio BAN', 73, 60, 'jugado', 21, 'regular', NULL, NULL, NULL, 3);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1647, 191, 189, '2026-03-21 03:00:00', '19:30:00', 'Estadio QUI', 83, 66, 'jugado', 21, 'regular', NULL, NULL, NULL, 3);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1648, 192, 188, '2026-03-21 03:00:00', '21:00:00', 'Estadio BOC', 66, 72, 'jugado', 21, 'regular', NULL, NULL, NULL, 3);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1649, 189, 187, '2026-03-28 03:00:00', '18:00:00', 'Estadio OBR', 83, 62, 'jugado', 21, 'regular', NULL, NULL, NULL, 4);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1650, 188, 190, '2026-03-28 03:00:00', '19:30:00', 'Estadio FER', 64, 72, 'jugado', 21, 'regular', NULL, NULL, NULL, 4);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1651, 192, 191, '2026-03-28 03:00:00', '21:00:00', 'Estadio BOC', 74, 58, 'jugado', 21, 'regular', NULL, NULL, NULL, 4);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1652, 187, 188, '2026-04-04 03:00:00', '18:00:00', 'Estadio BAN', 65, 68, 'jugado', 21, 'regular', NULL, NULL, NULL, 5);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1653, 189, 192, '2026-04-04 03:00:00', '19:30:00', 'Estadio OBR', 73, 79, 'jugado', 21, 'regular', NULL, NULL, NULL, 5);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1654, 190, 191, '2026-04-04 03:00:00', '21:00:00', 'Estadio ATE', 80, 63, 'jugado', 21, 'regular', NULL, NULL, NULL, 5);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1655, 192, 187, '2026-04-11 03:00:00', '18:00:00', 'Estadio BOC', 78, 72, 'jugado', 21, 'regular', NULL, NULL, NULL, 6);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1656, 191, 188, '2026-04-11 03:00:00', '19:30:00', 'Estadio QUI', 83, 58, 'jugado', 21, 'regular', NULL, NULL, NULL, 6);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1657, 190, 189, '2026-04-11 03:00:00', '21:00:00', 'Estadio ATE', 64, 66, 'jugado', 21, 'regular', NULL, NULL, NULL, 6);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1658, 187, 191, '2026-04-18 03:00:00', '18:00:00', 'Estadio BAN', 81, 59, 'jugado', 21, 'regular', NULL, NULL, NULL, 7);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1659, 192, 190, '2026-04-18 03:00:00', '19:30:00', 'Estadio BOC', 68, 65, 'jugado', 21, 'regular', NULL, NULL, NULL, 7);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1660, 188, 189, '2026-04-18 03:00:00', '21:00:00', 'Estadio FER', 70, 71, 'jugado', 21, 'regular', NULL, NULL, NULL, 7);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1661, 190, 187, '2026-04-25 03:00:00', '18:00:00', 'Estadio ATE', 68, 60, 'jugado', 21, 'regular', NULL, NULL, NULL, 8);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1662, 189, 191, '2026-04-25 03:00:00', '19:30:00', 'Estadio OBR', 73, 71, 'jugado', 21, 'regular', NULL, NULL, NULL, 8);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1663, 188, 192, '2026-04-25 03:00:00', '21:00:00', 'Estadio FER', 78, 79, 'jugado', 21, 'regular', NULL, NULL, NULL, 8);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1664, 187, 189, '2026-05-02 03:00:00', '18:00:00', 'Estadio BAN', 73, 67, 'jugado', 21, 'regular', NULL, NULL, NULL, 9);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1665, 190, 188, '2026-05-02 03:00:00', '19:30:00', 'Estadio ATE', 82, 73, 'jugado', 21, 'regular', NULL, NULL, NULL, 9);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1666, 191, 192, '2026-05-02 03:00:00', '21:00:00', 'Estadio QUI', 65, 62, 'jugado', 21, 'regular', NULL, NULL, NULL, 9);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1667, 188, 187, '2026-05-09 03:00:00', '18:00:00', 'Estadio FER', 83, 65, 'jugado', 21, 'regular', NULL, NULL, NULL, 10);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1668, 192, 189, '2026-05-09 03:00:00', '19:30:00', 'Estadio BOC', 78, 81, 'jugado', 21, 'regular', NULL, NULL, NULL, 10);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1669, 191, 190, '2026-05-09 03:00:00', '21:00:00', 'Estadio QUI', 60, 72, 'jugado', 21, 'regular', NULL, NULL, NULL, 10);
+INSERT INTO `partidos` (`id_partido`, `id_equipo_local`, `id_equipo_visitante`, `fecha`, `horario`, `lugar`, `resultado_local`, `resultado_visitante`, `estado`, `id_liga`, `fase`, `ronda`, `numero_juego`, `id_serie`, `numero_fecha`) VALUES (1670, 164, 157, '2026-07-12 03:00:00', '20:30:00', 'Sede Instituto de Córdoba U17', 80, 77, 'jugado', 17, 'playoff', 'final', 1, 12, NULL);
 
 DROP TABLE IF EXISTS `playoff_series`;
 CREATE TABLE `playoff_series` (
@@ -1543,7 +1650,7 @@ CREATE TABLE `playoff_series` (
   CONSTRAINT `fk_playoff_series_equipo_2` FOREIGN KEY (`id_equipo_2`) REFERENCES `equipos` (`id_equipo`),
   CONSTRAINT `fk_playoff_series_ganador` FOREIGN KEY (`id_ganador`) REFERENCES `equipos` (`id_equipo`),
   CONSTRAINT `fk_playoff_series_liga` FOREIGN KEY (`id_liga`) REFERENCES `ligas` (`id_liga`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (1, 16, 'semifinal', 1, 150, 154, 1, 4, 'partido_unico', NULL, 'pendiente', '2026-07-03 05:57:37', '2026-07-03 05:57:37');
 INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (2, 16, 'semifinal', 2, 146, 153, 2, 3, 'partido_unico', NULL, 'pendiente', '2026-07-03 05:57:37', '2026-07-03 05:57:37');
@@ -1551,7 +1658,8 @@ INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equip
 INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (6, 14, 'semifinal', 2, 135, 131, 2, 3, 'partido_unico', NULL, 'pendiente', '2026-07-03 06:01:18', '2026-07-03 06:01:18');
 INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (7, 15, 'semifinal', 1, 141, 142, 1, 4, 'partido_unico', NULL, 'pendiente', '2026-07-03 06:06:39', '2026-07-03 06:06:39');
 INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (8, 15, 'semifinal', 2, 140, 136, 2, 3, 'partido_unico', NULL, 'pendiente', '2026-07-03 06:06:39', '2026-07-03 06:06:39');
-INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (10, 17, 'semifinal', 1, 164, 162, 1, 4, 'partido_unico', NULL, 'pendiente', '2026-07-03 22:22:35', '2026-07-03 22:22:35');
-INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (11, 17, 'semifinal', 2, 165, 157, 2, 3, 'partido_unico', NULL, 'pendiente', '2026-07-03 22:22:35', '2026-07-03 22:22:35');
+INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (10, 17, 'semifinal', 1, 164, 162, 1, 4, 'partido_unico', 164, 'finalizada', '2026-07-03 22:22:35', '2026-07-03 22:58:55');
+INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (11, 17, 'semifinal', 2, 165, 157, 2, 3, 'partido_unico', 157, 'finalizada', '2026-07-03 22:22:35', '2026-07-03 22:58:55');
+INSERT INTO `playoff_series` (`id_serie`, `id_liga`, `ronda`, `orden`, `id_equipo_1`, `id_equipo_2`, `seed_equipo_1`, `seed_equipo_2`, `formato`, `id_ganador`, `estado`, `created_at`, `updated_at`) VALUES (12, 17, 'final', 1, 164, 157, 1, 3, 'partido_unico', 164, 'finalizada', '2026-07-03 22:58:55', '2026-07-03 22:59:35');
 
 SET FOREIGN_KEY_CHECKS=1;

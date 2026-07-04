@@ -39,7 +39,7 @@ function shiftCalendarMonth(month, offset) {
   };
 }
 
-function MatchCarousel({ matches, teamByName, loading, error }) {
+function MatchCarousel({ matches, teamByName, loading, error, onSelectTeam }) {
   if (loading || error || matches.length === 0) {
     return (
       <section className="match-carousel-panel">
@@ -75,21 +75,31 @@ function MatchCarousel({ matches, teamByName, loading, error }) {
                 Resultado final
               </strong>
               <div className="match-carousel__teams">
-                <div>
+                <button
+                  type="button"
+                  className="match-carousel__team"
+                  onClick={() => onSelectTeam(teamByName.get(match.equipo_local))}
+                  title={`Ver ficha de ${match.equipo_local}`}
+                >
                   <TeamShield
                     team={teamByName.get(match.equipo_local)}
                     name={match.equipo_local}
                   />
-                  <b title={match.equipo_local}>{match.equipo_local}</b>
-                </div>
+                  <b>{match.equipo_local}</b>
+                </button>
                 <span className="match-carousel__score">{getScore(match)}</span>
-                <div>
+                <button
+                  type="button"
+                  className="match-carousel__team"
+                  onClick={() => onSelectTeam(teamByName.get(match.equipo_visitante))}
+                  title={`Ver ficha de ${match.equipo_visitante}`}
+                >
                   <TeamShield
                     team={teamByName.get(match.equipo_visitante)}
                     name={match.equipo_visitante}
                   />
-                  <b title={match.equipo_visitante}>{match.equipo_visitante}</b>
-                </div>
+                  <b>{match.equipo_visitante}</b>
+                </button>
               </div>
               <small>
                 {formatShortDate(match.fecha)} - {match.horario || "--:--"}
@@ -254,6 +264,7 @@ export default function HomeView({
   leagueDetail,
   teamByName,
   setView,
+  setSelectedTeamId,
 }) {
   const playedMatches = matches.filter(isPlayed);
   const recentPlayedDates = [
@@ -276,6 +287,12 @@ export default function HomeView({
     .filter((match) => !isPlayed(match))
     .slice(0, 6);
   const currentRound = getLeagueRound(leagueDetail);
+  const openTeam = (team) => {
+    if (!team) return;
+    setSelectedLeagueId(team.id_liga);
+    setSelectedTeamId(team.id_equipo);
+    setView("equipos");
+  };
 
   return (
     <main className="home-grid">
@@ -285,6 +302,7 @@ export default function HomeView({
           teamByName={teamByName}
           loading={loading.matches}
           error={errors.matches}
+          onSelectTeam={openTeam}
         />
       </section>
 
@@ -322,6 +340,7 @@ export default function HomeView({
             standings={standings}
             teamByName={teamByName}
             compact
+            onSelectTeam={openTeam}
           />
         </section>
 
@@ -346,6 +365,7 @@ export default function HomeView({
                       <TeamNameWithShield
                         name={match.equipo_local}
                         teamByName={teamByName}
+                        onSelectTeam={openTeam}
                       />
                     </td>
                     <td data-label="Local">
@@ -359,6 +379,7 @@ export default function HomeView({
                       <TeamNameWithShield
                         name={match.equipo_visitante}
                         teamByName={teamByName}
+                        onSelectTeam={openTeam}
                       />
                     </td>
                   </tr>
@@ -387,6 +408,7 @@ export default function HomeView({
                       <TeamNameWithShield
                         name={match.equipo_local}
                         teamByName={teamByName}
+                        onSelectTeam={openTeam}
                       />
                     </td>
                     <td aria-hidden="true">vs.</td>
@@ -394,6 +416,7 @@ export default function HomeView({
                       <TeamNameWithShield
                         name={match.equipo_visitante}
                         teamByName={teamByName}
+                        onSelectTeam={openTeam}
                       />
                     </td>
                   </tr>

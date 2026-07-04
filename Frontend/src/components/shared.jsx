@@ -37,11 +37,31 @@ export function TeamShield({ team, name, size = "md" }) {
   return <span className={`team-shield team-shield--${size}`}>{getTeamCode(label)}</span>;
 }
 
-export function TeamNameWithShield({ name, teamByName, size = "xs" }) {
+export function TeamNameWithShield({ name, teamByName, size = "xs", onSelectTeam }) {
+  const team = teamByName?.get(name);
+  const content = (
+    <>
+      <TeamShield team={team} name={name} size={size} />
+      <span>{name || "Sin equipo"}</span>
+    </>
+  );
+
+  if (team && onSelectTeam) {
+    return (
+      <button
+        type="button"
+        className="team-name-with-shield team-name-with-shield--button"
+        onClick={() => onSelectTeam(team)}
+        title={`Ver ficha de ${name}`}
+      >
+        {content}
+      </button>
+    );
+  }
+
   return (
     <span className="team-name-with-shield">
-      <TeamShield team={teamByName?.get(name)} name={name} size={size} />
-      <span>{name || "Sin equipo"}</span>
+      {content}
     </span>
   );
 }
@@ -168,7 +188,7 @@ export function TeamMatchesTable({ matches, emptyText }) {
   );
 }
 
-export function StandingsTable({ standings, compact = false, teamByName }) {
+export function StandingsTable({ standings, compact = false, teamByName, onSelectTeam }) {
   if (!standings.length) return null;
 
   return (
@@ -193,7 +213,11 @@ export function StandingsTable({ standings, compact = false, teamByName }) {
             <td>{index + 1}</td>
             <td>
               {teamByName ? (
-                <TeamNameWithShield name={team.nombre} teamByName={teamByName} />
+                <TeamNameWithShield
+                  name={team.nombre}
+                  teamByName={teamByName}
+                  onSelectTeam={onSelectTeam}
+                />
               ) : (
                 team.nombre
               )}

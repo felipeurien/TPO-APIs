@@ -118,25 +118,49 @@ npm run preview
 
 Previsualiza el build.
 
+## Base de datos
+
+El repositorio incluye un dump listo para importar:
+
+```text
+database/init.sql
+```
+
+Importarlo en MySQL antes de levantar el backend:
+
+```bash
+mysql -u root -p -P 3307 < database/init.sql
+```
+
+El archivo crea la base `liga_basket`, sus tablas y los datos de prueba.
+
+Si se modifican datos locales y se quiere regenerar el dump:
+
+```bash
+cd Backend
+npm run db:export
+```
+
 ## Ejecucion local
 
-1. Levantar MySQL y verificar que la base `liga_basket` exista.
-2. Configurar `Backend/.env`.
-3. Levantar backend:
+1. Levantar MySQL.
+2. Importar `database/init.sql`.
+3. Configurar `Backend/.env`.
+4. Levantar backend:
 
 ```bash
 cd Backend
 npm run dev
 ```
 
-4. Levantar frontend:
+5. Levantar frontend:
 
 ```bash
 cd ../Frontend
 npm run dev
 ```
 
-5. Abrir la URL que indique Vite.
+6. Abrir la URL que indique Vite.
 
 Nota: la base entregada ya debe incluir la estructura y los datos necesarios. Los scripts auxiliares de migracion y datos de prueba quedan en `Backend/scripts/`, pero no son parte del flujo normal de uso.
 

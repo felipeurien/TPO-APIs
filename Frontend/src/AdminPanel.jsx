@@ -73,6 +73,11 @@ function matchLabel(match) {
   return `${match.equipo_local || match.id_equipo_local} vs. ${match.equipo_visitante || match.id_equipo_visitante}`;
 }
 
+function adminRowLabel(tab, row) {
+  if (tab === "jugadores" || tab === "entrenadores") return personName(row);
+  return row.nombre || row.username || matchLabel(row);
+}
+
 function uniqueOptions(values) {
   return [...new Set(values.filter(Boolean))]
     .sort((a, b) => String(a).localeCompare(String(b), "es"))
@@ -407,7 +412,7 @@ function AdminTable({ tab, rows, onEdit, onDelete, token, refreshData }) {
               <tr key={`${tab}-${id}`}>
                 <td>
                   <strong>
-                    {row.nombre || row.username || matchLabel(row)}
+                    {adminRowLabel(tab, row)}
                   </strong>
                   <span className="admin-row-note">
                     ID #{id}
@@ -540,7 +545,7 @@ export default function AdminPanel({ session, onLogin, onLogout, leagues, teams,
 
   const remove = async (row) => {
     const id = getAdminRowId(tab, row);
-    const label = row.nombre || row.username || matchLabel(row) || `ID #${id}`;
+    const label = adminRowLabel(tab, row) || `ID #${id}`;
 
     if (!window.confirm(`¿Seguro que querés borrar "${label}"?`)) {
       return;

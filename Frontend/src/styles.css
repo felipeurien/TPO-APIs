@@ -652,10 +652,25 @@ a:hover,
   align-items: center;
 }
 
-.match-carousel__teams div {
+.match-carousel__teams div,
+.match-carousel__team {
   display: grid;
   justify-items: center;
   min-width: 0;
+}
+
+.match-carousel__team {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.match-carousel__team:hover b,
+.team-name-with-shield--button:hover span:last-child {
+  text-decoration: underline;
 }
 
 .match-carousel__teams .team-shield {
@@ -866,6 +881,16 @@ a:hover,
   align-items: center;
   max-width: 100%;
   vertical-align: middle;
+}
+
+.team-name-with-shield--button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .team-name-with-shield > span:last-child {

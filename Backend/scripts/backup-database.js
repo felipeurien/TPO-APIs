@@ -13,6 +13,9 @@ function sqlValue(value) {
 }
 
 async function main() {
+  const explicitOutputPath = process.argv[2]
+    ? path.resolve(process.cwd(), process.argv[2])
+    : null;
   const conn = await mysql.createConnection({
     host: process.env.DB_HOST,
     port: Number(process.env.DB_PORT),
@@ -24,8 +27,10 @@ async function main() {
   const [tables] = await conn.query("SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'");
   const tableKey = `Tables_in_${process.env.DB_NAME}`;
   const lines = [
-    `-- Backup ${process.env.DB_NAME}`,
+    `-- Export ${process.env.DB_NAME}`,
     `-- Created ${new Date().toISOString()}`,
+    `CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\`;`,
+    `USE \`${process.env.DB_NAME}\`;`,
     "SET FOREIGN_KEY_CHECKS=0;",
     "",
   ];
@@ -53,10 +58,12 @@ async function main() {
 
   lines.push("SET FOREIGN_KEY_CHECKS=1;");
 
-  const backupDir = path.resolve(__dirname, "../../Backups");
-  fs.mkdirSync(backupDir, { recursive: true });
-  const filename = `${process.env.DB_NAME}-before-senior-six-${new Date().toISOString().replace(/[:.]/g, "-")}.sql`;
-  const outputPath = path.join(backupDir, filename);
+  const outputPath = explicitOutputPath || path.resolve(
+    __dirname,
+    "../../Backups",
+    `${process.env.DB_NAME}-${new Date().toISOString().replace(/[:.]/g, "-")}.sql`,
+  );
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
   fs.writeFileSync(outputPath, `${lines.join("\n")}\n`, "utf8");
 
   await conn.end();

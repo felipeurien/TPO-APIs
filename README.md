@@ -1,4 +1,4 @@
-# Liga Metropolitana de Basket - TPO APIs
+# Liga Metropolitana de Basket 2000s - TPO APIs
 
 Aplicacion web para administrar y consultar una liga de basket por categorias. El sistema tiene una vista publica para invitados y un panel privado para administradores.
 

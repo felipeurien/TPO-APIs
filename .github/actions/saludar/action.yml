@@ -1,0 +1,14 @@
+name: Saludar
+description: Muestra un saludo en el log del workflow
+
+inputs:
+  nombre:
+    description: Nombre de la persona a saludar
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Mostrar saludo
+      shell: bash
+      run: echo "¡Hola, ${{ inputs.nombre }}!"
